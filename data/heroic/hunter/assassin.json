@@ -1,0 +1,75 @@
+{
+    "talents": [
+        {
+            "id": "startling_blow",
+            "name": "Startling Blow",
+            "type": "1 Action",
+            "prereq": {
+                "skill": "st",
+                "rank": 1
+            },
+            "parent": null
+        },
+        {
+            "id": "fatal_thrust",
+            "name": "Fatal Thrust",
+            "type": "Fast",
+            "prereq": {
+                "skill": "perc",
+                "rank": 3
+            },
+            "parent": "startling_blow"
+        },
+        {
+            "id": "mighty",
+            "name": "Mighty",
+            "type": "Passive",
+            "prereq": null,
+            "parent": "cold_eyes"
+        },
+        {
+            "id": "swift_strikes",
+            "name": "Swift Strikes",
+            "type": "1 Action",
+            "prereq": null,
+            "parent": "cold_eyes"
+        },
+        {
+            "id": "killing_edge",
+            "name": "Killing Edge",
+            "type": "Passive",
+            "prereq": {
+                "skill": "perc",
+                "rank": 2
+            },
+            "parent": null
+        },
+        {
+            "id": "shadowing",
+            "name": "Shadowing",
+            "type": "Special",
+            "prereq": {
+                "skill": "st",
+                "rank": 2
+            },
+            "parent": "killing_edge"
+        },
+        {
+            "id": "cold_eyes",
+            "name": "Cold Eyes",
+            "type": "Passive",
+            "prereq": null,
+            "parent": "shadowing"
+        },
+        {
+            "id": "sidestep",
+            "name": "Sidestep",
+            "type": "Special",
+            "prereq": {
+                "skill": "st",
+                "rank": 3
+            },
+            "parent": "shadowing"
+        }
+    ]
+}

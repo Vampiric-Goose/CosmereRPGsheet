@@ -1,0 +1,3 @@
+Your healing abilities restore
+additional health equal to your
+ranks in Lore.

@@ -1,0 +1,11 @@
+{
+    "specialties": [
+        "Diplomat",
+        "Faithful",
+        "Mentor"
+    ],
+    "startingTalent": "Rousing Presence",
+    "startingTalentType": "1 Action",
+    "startingTalentDesc": "An ally becomes Determined until end of scene.",
+    "talentTrees": {}
+}

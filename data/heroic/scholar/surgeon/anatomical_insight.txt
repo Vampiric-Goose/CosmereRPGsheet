@@ -1,0 +1,4 @@
+When you hit with an unarmed
+attack, spend 1 focus or opportunity to
+make the target Exhausted
+[− half your ranks in Medicine].

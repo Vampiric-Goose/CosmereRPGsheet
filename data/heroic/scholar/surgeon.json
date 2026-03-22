@@ -1,0 +1,75 @@
+{
+    "talents": [
+        {
+            "id": "field_medicine",
+            "name": "Field Medicine",
+            "type": "Action",
+            "prereq": {
+                "skill": "med",
+                "rank": 1
+            },
+            "parent": null
+        },
+        {
+            "id": "anatomical_insight",
+            "name": "Anatomical Insight",
+            "type": "Special",
+            "prereq": null,
+            "parent": "field_medicine"
+        },
+        {
+            "id": "swift_healer",
+            "name": "Swift Healer",
+            "type": "Free Action",
+            "prereq": {
+                "skill": "med",
+                "rank": 2
+            },
+            "parent": "field_medicine"
+        },
+        {
+            "id": "ongoing_care",
+            "name": "Ongoing Care",
+            "type": "Special",
+            "prereq": {
+                "skill": "lore",
+                "rank": 3
+            },
+            "parent": "swift_healer"
+        },
+        {
+            "id": "emotional_intelligence",
+            "name": "Emotional Intelligence",
+            "type": "Passive",
+            "prereq": null,
+            "parent": null
+        },
+        {
+            "id": "collected",
+            "name": "Collected",
+            "type": "Passive",
+            "prereq": null,
+            "parent": "emotional_intelligence"
+        },
+        {
+            "id": "applied_medicine",
+            "name": "Overcharge",
+            "type": "Passive",
+            "prereq": {
+                "skill": "lore",
+                "rank": 2
+            },
+            "parent": "collected"
+        },
+        {
+            "id": "resuscitation",
+            "name": "Resuscitation",
+            "type": "Special",
+            "prereq": {
+                "skill": "med",
+                "rank": 3
+            },
+            "parent": "swift_healer"
+        }
+    ]
+}

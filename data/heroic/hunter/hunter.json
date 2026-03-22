@@ -1,0 +1,11 @@
+{
+    "specialties": [
+        "Archer",
+        "Assassin",
+        "Tracker"
+    ],
+    "startingTalent": "Seek Quarry",
+    "startingTalentType": "Special",
+    "startingTalentDesc": "Choose a character to be your quarry, gaining an advantage on tests to find, attack, and study them.",
+    "talentTrees": {}
+}

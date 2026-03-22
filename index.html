@@ -1,0 +1,2007 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cosmere RPG Character Tool</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap');
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #020617;
+      color: #e2e8f0;
+    }
+
+    .font-serif-header {
+      font-family: 'Cinzel', serif;
+    }
+
+    .stat-card {
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid rgba(71, 85, 105, 0.5);
+      border-radius: 12px;
+      backdrop-filter: blur(8px);
+    }
+
+    .resource-bar {
+      height: 10px;
+      border-radius: 5px;
+      background: #0f172a;
+      overflow: hidden;
+    }
+
+    .resource-fill {
+      height: 100%;
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    input,
+    textarea,
+    select {
+      background: transparent;
+      outline: none;
+      border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+      transition: border-color 0.2s;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-bottom-color: #a855f7;
+    }
+
+    select option {
+      background: #0f172a;
+      color: white;
+    }
+
+    input[type="number"] {
+      text-align: center;
+      -moz-appearance: textfield;
+    }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .rank-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 1px solid #475569;
+      display: inline-block;
+      cursor: pointer;
+      margin-right: 2px;
+    }
+
+    .rank-dot.active {
+      background: #a855f7;
+      border-color: #c084fc;
+      box-shadow: 0 0 5px rgba(168, 85, 247, 0.5);
+    }
+
+    .rank-dot.active-surge {
+      background: #38bdf8;
+      border-color: #7dd3fc;
+      box-shadow: 0 0 5px rgba(56, 189, 248, 0.5);
+    }
+
+    .btn-action {
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-action:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.1);
+    }
+
+    .talent-slot {
+      border-left: 2px solid #a855f7;
+      padding-left: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .bonus-talent {
+      border-left-color: #10b981;
+    }
+
+    .radiant-talent {
+      border-left-color: #38bdf8;
+    }
+
+    .resource-btn {
+      @apply flex items-center justify-center w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors text-xs border border-slate-700;
+    }
+
+    /* Talent Tree Specific Styles */
+    .talent-card {
+      @apply p-3 border rounded-lg cursor-pointer transition-all relative overflow-hidden bg-slate-800/40;
+      border-color: rgba(71, 85, 105, 0.4);
+    }
+
+    .talent-card:hover {
+      @apply border-purple-500/50 bg-slate-800/60;
+    }
+
+    .talent-card.selected {
+      @apply border-purple-500 bg-purple-900/20 shadow-[0_0_15px_rgba(168, 85, 247, 0.3)];
+    }
+
+    .radiant-card.selected {
+      @apply border-sky-400 bg-sky-900/20 shadow-[0_0_15px_rgba(56, 189, 248, 0.3)];
+    }
+
+    .talent-card.locked {
+      @apply opacity-40 grayscale pointer-events-none;
+    }
+
+    .talent-type-icon {
+      @apply absolute top-2 right-2 text-[9px] font-bold text-slate-500 opacity-60 uppercase tracking-tighter bg-slate-900/80 px-1 rounded;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #a855f7;
+      border-radius: 4px;
+    }
+
+    .modal-overlay {
+      background: rgba(2, 6, 23, 0.85);
+      backdrop-filter: blur(4px);
+    }
+
+    .tree-tab {
+      @apply px-4 py-2 text-[10px] font-bold uppercase tracking-widest border-b-2 border-transparent transition-all cursor-pointer text-slate-500;
+    }
+
+    .tree-tab.active {
+      @apply text-purple-400 border-purple-500 bg-purple-500/5;
+    }
+
+    .tree-tab.active.radiant-tab {
+      @apply text-sky-400 border-sky-500 bg-sky-500/5;
+    }
+  </style>
+</head>
+
+<body class="p-4 lg:p-8 min-h-screen">
+
+  <div class="max-w-6xl mx-auto space-y-6">
+
+    <!-- HEADER: Identity & Actions -->
+    <header class="bg-slate-900/50 p-6 rounded-2xl border-l-4 border-purple-500 shadow-xl space-y-6">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <h1 class="font-serif-header text-xl text-purple-400 tracking-widest flex items-center gap-3">
+          Character Archive
+          <span
+            class="text-xs bg-slate-800 border border-slate-700 px-2 py-1 rounded text-slate-400 font-sans tracking-normal">Cosmere
+            RPG</span>
+        </h1>
+        <div class="flex gap-3">
+          <button onclick="exportCharacter()"
+            class="btn-action bg-purple-600/20 text-purple-400 border border-purple-500/50 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-tighter">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Export JSON
+          </button>
+          <button onclick="document.getElementById('importFile').click()"
+            class="btn-action bg-slate-700/50 text-slate-300 border border-slate-600 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-tighter">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            Import JSON
+          </button>
+          <input type="file" id="importFile" class="hidden" accept=".json" onchange="importCharacter(event)">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+        <div class="md:col-span-1">
+          <label class="text-[10px] font-bold text-purple-400 uppercase tracking-[0.2em]">Character
+            Name</label>
+          <input id="charName" type="text" placeholder="Kaladin Stormblessed"
+            class="w-full text-xl font-serif-header py-1">
+        </div>
+        <div>
+          <label class="text-[10px] font-bold text-purple-400 uppercase tracking-[0.2em]">Ancestry</label>
+          <input id="ancestry" type="text" placeholder="e.g. Alethi Human" class="w-full text-lg py-1"
+            oninput="updateTalentSlots(); updateUI();">
+        </div>
+        <div>
+          <label class="text-[10px] font-bold text-purple-400 uppercase tracking-[0.2em]">Heroic Path</label>
+          <select id="heroicPath" onchange="updateSpecialties(); updateUI();"
+            class="w-full text-lg py-1 bg-transparent border-purple-500/50 focus:border-purple-400">
+            <option value="">Select Path...</option>
+            <option value="agent">Agent</option>
+            <option value="envoy">Envoy</option>
+            <option value="hunter">Hunter</option>
+            <option value="leader">Leader</option>
+            <option value="scholar">Scholar</option>
+            <option value="warrior">Warrior</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-[10px] font-bold text-sky-400 uppercase tracking-[0.2em]">Radiant Order</label>
+          <select id="radiantOrder" onchange="updateRadiantTrees(); updateUI();"
+            class="w-full text-lg py-1 bg-transparent border-sky-500/50 text-sky-100 focus:border-sky-400">
+            <option value="">Select Order...</option>
+            <option value="dustbringer">Dustbringer</option>
+            <option value="edgedancer">Edgedancer</option>
+            <option value="elsecaller">Elsecaller</option>
+            <option value="lightweaver">Lightweaver</option>
+            <option value="skybreaker">Skybreaker</option>
+            <option value="stoneward">Stoneward</option>
+            <option value="truthwatcher">Truthwatcher</option>
+            <option value="willshaper">Willshaper</option>
+            <option value="windrunner">Windrunner</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-[10px] font-bold text-purple-400 uppercase tracking-[0.2em]">Level</label>
+          <input id="level" type="number" value="1" min="1"
+            class="w-full text-lg font-bold py-1 text-center border-none bg-slate-800 rounded mt-1"
+            oninput="updateTalentSlots(); updateUI();">
+        </div>
+      </div>
+    </header>
+
+    <!-- RESOURCE POOLS (Calculated) -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Health -->
+      <div class="stat-card p-4">
+        <div class="flex justify-between items-end mb-2">
+          <div>
+            <span class="block text-[10px] font-bold text-red-400 uppercase tracking-widest">Health</span>
+            <div class="text-[10px] text-slate-500 italic">10 + STR + (Lv-1)*5 <span id="hardyBonusLabel"
+                class="text-purple-400"></span></div>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="flex flex-col gap-0.5">
+              <button onclick="adjustResource('curH', 1)" class="resource-btn">▲</button>
+              <button onclick="adjustResource('curH', -1)" class="resource-btn">▼</button>
+            </div>
+            <div class="text-right">
+              <input id="curH" type="number" value="10" class="w-10 text-xl font-bold border-none">
+              <span class="text-slate-500">/</span>
+              <span id="maxH" class="text-xl font-bold text-slate-400 ml-1">10</span>
+            </div>
+          </div>
+        </div>
+        <div class="resource-bar">
+          <div id="barH" class="resource-fill bg-red-600"></div>
+        </div>
+      </div>
+      <!-- Focus -->
+      <div class="stat-card p-4">
+        <div class="flex justify-between items-end mb-2">
+          <div>
+            <span class="block text-[10px] font-bold text-yellow-400 uppercase tracking-widest">Focus</span>
+            <div class="text-[10px] text-slate-500 italic">2 + WIL <span id="composedBonusLabel"
+                class="text-yellow-400"></span></div>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="flex flex-col gap-0.5">
+              <button onclick="adjustResource('curF', 1)" class="resource-btn">▲</button>
+              <button onclick="adjustResource('curF', -1)" class="resource-btn">▼</button>
+            </div>
+            <div class="text-right">
+              <input id="curF" type="number" value="2" class="w-10 text-xl font-bold border-none">
+              <span class="text-slate-500">/</span>
+              <span id="maxF" class="text-xl font-bold text-slate-400 ml-1">2</span>
+            </div>
+          </div>
+        </div>
+        <div class="resource-bar">
+          <div id="barF" class="resource-fill bg-yellow-500"></div>
+        </div>
+      </div>
+      <!-- Investiture -->
+      <div class="stat-card p-4 border-sky-500/30">
+        <div class="flex justify-between items-end mb-2">
+          <div>
+            <span class="block text-[10px] font-bold text-sky-400 uppercase tracking-widest">Investiture</span>
+            <div class="text-[10px] text-slate-500 italic"><span id="investedBonusLabel" class="text-sky-400">Requires
+                First Ideal</span></div>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="flex flex-col gap-0.5">
+              <button onclick="adjustResource('curI', 1)" class="resource-btn">▲</button>
+              <button onclick="adjustResource('curI', -1)" class="resource-btn">▼</button>
+            </div>
+            <div class="text-right">
+              <input id="curI" type="number" value="0" class="w-10 text-xl font-bold border-none">
+              <span class="text-slate-500">/</span>
+              <span id="maxI" class="w-10 text-xl font-bold text-slate-400 border-none">0</span>
+            </div>
+          </div>
+        </div>
+        <div class="resource-bar">
+          <div id="barI" class="resource-fill bg-sky-400"></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- PRIMARY ATTRIBUTES & PATH DATA (Left Column) -->
+      <div class="lg:col-span-8 space-y-6">
+        <div class="grid grid-cols-3 md:grid-cols-6 gap-3">
+          <div class="stat-card p-3 text-center border-slate-700/50">
+            <label class="block text-[10px] font-bold text-slate-500 uppercase">STR</label>
+            <input id="str" type="number" value="0" class="w-full text-2xl font-serif-header border-none"
+              oninput="updateUI()">
+          </div>
+          <div class="stat-card p-3 text-center border-slate-700/50">
+            <label class="block text-[10px] font-bold text-slate-500 uppercase">SPD</label>
+            <input id="spd" type="number" value="0" class="w-full text-2xl font-serif-header border-none"
+              oninput="updateUI()">
+          </div>
+          <div class="stat-card p-3 text-center border-slate-700/50">
+            <label class="block text-[10px] font-bold text-slate-500 uppercase">INT</label>
+            <input id="int" type="number" value="0" class="w-full text-2xl font-serif-header border-none"
+              oninput="updateUI()">
+          </div>
+          <div class="stat-card p-3 text-center border-slate-700/50">
+            <label class="block text-[10px] font-bold text-slate-500 uppercase">WIL</label>
+            <input id="wil" type="number" value="0" class="w-full text-2xl font-serif-header border-none"
+              oninput="updateUI()">
+          </div>
+          <div class="stat-card p-3 text-center border-slate-700/50">
+            <label class="block text-[10px] font-bold text-slate-500 uppercase">AWA</label>
+            <input id="awa" type="number" value="0" class="w-full text-2xl font-serif-header border-none"
+              oninput="updateUI()">
+          </div>
+          <div class="stat-card p-3 text-center border-slate-700/50">
+            <label class="block text-[10px] font-bold text-slate-500 uppercase">PRE</label>
+            <input id="pre" type="number" value="0" class="w-full text-2xl font-serif-header border-none"
+              oninput="updateUI()">
+          </div>
+        </div>
+
+        <!-- COMBINED TALENT TREES MASTER CARD -->
+        <div class="stat-card overflow-hidden border-purple-500/30">
+          <!-- Navigation / Specialty Choice Row -->
+          <div
+            class="bg-slate-900/80 border-b border-slate-800 p-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-4">
+              <h3 class="font-serif-header text-purple-400 text-sm uppercase tracking-widest">Talent
+                Archives</h3>
+              <div id="specialtyContainer">
+                <select id="specialty" onchange="updateSpecialtyTree();"
+                  class="bg-transparent text-[10px] py-1 uppercase tracking-tighter text-slate-300 font-bold border-slate-700">
+                  <option value="">Choose Specialty...</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab Strip -->
+          <div class="flex bg-slate-950/40 border-b border-slate-800/50 overflow-x-auto no-scrollbar" id="treeTabStrip">
+            <div id="tab-heroic" onclick="switchTreeTab('heroic')" class="tree-tab active">Heroic Path</div>
+            <div id="tab-spren" onclick="switchTreeTab('spren')" class="tree-tab hidden radiant-tab">Spren
+              Bond</div>
+            <div id="tab-surge1" onclick="switchTreeTab('surge1')" class="tree-tab hidden radiant-tab">Surge
+              1</div>
+            <div id="tab-surge2" onclick="switchTreeTab('surge2')" class="tree-tab hidden radiant-tab">Surge
+              2</div>
+          </div>
+
+          <!-- Visual Talent Tree Display Area -->
+          <div id="treeViewport" class="p-6">
+            <!-- Heroic specialty tree -->
+            <div id="view-heroic" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            <!-- Radiant spren bond tree -->
+            <div id="view-spren" class="grid grid-cols-1 md:grid-cols-2 gap-4 hidden"></div>
+            <!-- Surge 1 tree -->
+            <div id="view-surge1" class="grid grid-cols-1 md:grid-cols-2 gap-4 hidden"></div>
+            <!-- Surge 2 tree -->
+            <div id="view-surge2" class="grid grid-cols-1 md:grid-cols-2 gap-4 hidden"></div>
+
+            <div id="emptyTreeView" class="text-center py-12 text-slate-500 italic text-sm">
+              Select a specialty or Radiant order above to view talent trees.
+            </div>
+          </div>
+        </div>
+
+        <!-- TALENT SLOTS -->
+        <div class="stat-card p-6">
+          <h3
+            class="font-serif-header text-slate-300 text-sm uppercase tracking-widest border-b border-slate-800 pb-2 mb-6">
+            Active Talents
+          </h3>
+          <div id="talentContainer" class="space-y-4">
+            <!-- Level 1 Slot -->
+            <div class="talent-slot">
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-xs font-bold text-slate-400 uppercase">Level 1: Starting Path
+                  Talent</span>
+                <span class="text-[10px] text-purple-500 italic">Automatic</span>
+              </div>
+              <div class="relative flex items-center gap-1">
+                <div class="relative flex-grow">
+                  <input type="text" id="talent-1" placeholder="Starting Talent Name..."
+                    class="w-full text-sm font-bold py-1 border-slate-800 bg-transparent cursor-pointer text-purple-400 hover:text-purple-300 transition-colors pr-8"
+                    readonly onclick="openTalentModalForStarting()">
+                </div>
+              </div>
+              <textarea id="desc-1" placeholder="Description..."
+                class="w-full text-[11px] text-slate-400 italic mt-1 bg-transparent border-none resize-none overflow-hidden"
+                rows="2" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"></textarea>
+            </div>
+            <div id="additionalTalents"></div>
+          </div>
+        </div>
+
+        <!-- SKILLS GRID -->
+        <div class="stat-card p-6">
+          <h3
+            class="font-serif-header text-purple-400 text-sm uppercase mb-6 tracking-widest border-b border-slate-800 pb-2">
+            Skills & Specializations</h3>
+          <div id="skillGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-3">
+            <!-- Skills will be injected here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- SIDEBAR: Defenses & Expertises (Right Column) -->
+      <div class="lg:col-span-4 space-y-6">
+        <!-- Defenses -->
+        <div class="space-y-3">
+          <div class="stat-card p-4 border-l-4 border-purple-500/50 flex justify-between items-center">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-purple-400">Physical
+              Defense</span>
+            <span id="defP" class="text-3xl font-serif-header">10</span>
+          </div>
+          <div class="stat-card p-4 border-l-4 border-purple-500/50 flex justify-between items-center">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-purple-400">Cognitive
+              Defense</span>
+            <span id="defC" class="text-3xl font-serif-header">10</span>
+          </div>
+          <div class="stat-card p-4 border-l-4 border-purple-500/50 flex justify-between items-center">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-purple-400">Spiritual
+              Defense</span>
+            <span id="defS" class="text-3xl font-serif-header">10</span>
+          </div>
+          <div class="stat-card p-4 flex justify-between items-center">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-400">Deflect</span>
+            <input id="deflect" type="number" value="0" class="w-12 text-2xl font-serif-header border-none text-right"
+              oninput="updateUI()">
+          </div>
+        </div>
+
+        <!-- UTILITY DATA -->
+        <div class="stat-card p-4 space-y-4 border border-slate-800 shadow-inner">
+          <div class="flex justify-between items-center">
+            <span class="text-[9px] text-slate-500 uppercase font-bold">Movement</span>
+            <span id="move" class="text-purple-400 font-bold">20 ft.</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-[9px] text-slate-500 uppercase font-bold">Lifting / Carrying</span>
+            <span id="lift" class="text-emerald-400 font-bold text-xs">100 / 50 lb.</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-[9px] text-slate-500 uppercase font-bold">Recovery Die</span>
+            <span id="recovery" class="text-red-400 font-bold">1d4</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-[9px] text-slate-500 uppercase font-bold">Senses</span>
+            <span id="senses" class="text-yellow-400 font-bold">5 ft.</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-[9px] text-slate-500 uppercase font-bold">Connections</span>
+            <span id="conn" class="text-purple-400 text-[10px] font-bold text-right leading-tight">1
+              year</span>
+          </div>
+        </div>
+
+        <!-- Expertises -->
+        <div class="stat-card p-6 h-fit">
+          <h3
+            class="font-serif-header text-purple-400 text-sm uppercase mb-4 tracking-widest border-b border-slate-800 pb-2">
+            Expertises</h3>
+          <textarea id="expertises"
+            class="w-full h-40 bg-slate-900/30 p-2 rounded-lg border border-slate-800 text-sm italic"
+            placeholder="Military Lore, Calligraphy, Stonecarving..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Talent Details -->
+  <div id="talentModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-[100] hidden p-4">
+    <div
+      class="bg-slate-900 border border-purple-500/50 rounded-xl shadow-2xl max-w-lg w-full relative overflow-hidden">
+      <div class="bg-slate-800 border-b border-purple-500/30 p-4 flex justify-between items-center">
+        <h2 id="modalTitle" class="font-serif-header text-xl text-purple-400">Talent Name</h2>
+        <button onclick="closeTalentModal()" class="text-slate-400 hover:text-white transition-colors">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="p-6 space-y-4">
+        <div class="flex flex-wrap gap-4 text-xs font-bold uppercase text-slate-400">
+          <div class="bg-slate-800 py-1 px-3 rounded flex items-center gap-2">
+            <span class="text-emerald-400">Type:</span>
+            <span id="modalType" class="text-white">Action</span>
+          </div>
+        </div>
+        <div id="modalPrereqsContainer"
+          class="bg-slate-800/50 py-2 px-3 rounded border border-slate-700/50 text-xs text-red-400 hidden">
+          <span class="font-bold uppercase tracking-widest text-[9px] block mb-1">Prerequisites</span>
+          <span id="modalPrereqs"></span>
+        </div>
+        <div
+          class="text-sm text-slate-300 leading-relaxed border-l-2 border-purple-500/50 pl-4 py-1 max-h-[60vh] overflow-y-auto custom-scrollbar whitespace-pre-wrap"
+          id="modalDesc">
+          Full talent description goes here.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="heroicPathsData.js"></script>
+  <script>
+    // const heroicPathsData = {
+    //   agent: {
+    //     specialties: ["Investigator", "Spy", "Thief"],
+    //     startingTalent: "Opportunist",
+    //     startingTalentType: "Special",
+    //     startingTalentDesc: "Once per round, when you roll a plot die, you can reroll that result. The original roll has no effect and you must use the new result.",
+    //     talentTrees: {
+    //       investigator: [
+    //         { id: 'watchful_eye', name: 'Watchful Eye', type: 'Reaction', desc: 'Use Opportunist on the plot die of a willing ally within 20 feet.', prereq: { skill: 'ded', rank: 1 } },
+    //         { id: 'get_em_talking', name: "Get 'Em Talking", type: '1 Action', desc: 'With a leading question or cutting remark, you goad others into revealing their motives. Spend 1 focus to make a Deduction test against the Spiritual defense of a character you can influence. On a success, you learn the target\'s motivation for being in the scene. Until the end of the scene, when you make a test to leverage this motivation against the target, you can raise the stakes.', prereq: { skill: 'ins', rank: 2 } },
+    //         { id: 'quick_analysis', name: 'Quick Analysis', type: 'Free Action', desc: 'Your mind quickly files and organizes data, and you swiftly act on that information while under pressure. Spend 2 focus to gain a Free Action, which you can only use to make cognitive skill tests via the following actions: Use a Skill, Gain Advantage, or an action from any Agent talent. During a conversation or endeavor, at the GM\'s discretion, you can instead use both to make an additional contribution for the round.', parent: 'watchful_eye' },
+    //         { id: 'baleful', name: 'Baleful', type: 'Passive', desc: 'To resist your influence, a character must spend additional focus equal to your tier.', parent: 'get_em_talking' },
+    //         { id: 'gather_evidence', name: 'Gather Evidence', type: 'Passive', desc: 'Observing clues in your environment, you slowly but surely build a mental model of the mysteries before you. After you succeed on a cognitive test against another character, you become Focused until the end of your next turn. Additionally, when you acquire this talent, gain a utility expertise in Legal Codes.', parent: 'quick_analysis', prereq: { skill: 'ins', rank: 2 } },
+    //         { id: 'hardy', name: 'Hardy', type: 'Passive', desc: 'Gain +1 max health per level (including previous levels).', parent: 'baleful' },
+    //         { id: 'sleuths_instincts', name: 'Sleuth\'s Instincts', type: 'Passive', desc: 'Advantage on cognitive tests vs characters whose motivation you know. Know when they lie.', parent: 'gather_evidence', prereq: { skill: 'ded', rank: 3 } },
+    //         { id: 'close_the_case', name: 'Close the Case', type: 'Slow', desc: 'Spend 3 focus to test Deduction vs. Cognitive. Success: target backs down. Resisting gives them disadvantage.', parent: 'hardy', prereq: { skill: 'ded', rank: 3 } }
+    //       ],
+    //       spy: [
+    //         { id: 'sure_outcome', name: 'Sure Outcome', type: 'Special', desc: 'When using Opportunist, spend 2 focus to change result to 4 or opportunity.', prereq: { skill: 'ins', rank: 2 } },
+    //         { id: 'plausible_excuse', name: 'Plausible Excuse', type: 'Reaction', desc: 'Gain Sleight of Hand expertise. When discovered skulking, spend 2 focus to feign innocence.', prereq: { skill: 'decp', rank: 1 } },
+    //         { id: 'collected', name: 'Collected', type: 'Passive', desc: 'Increase your Cognitive and Spiritual defenses by 2.', parent: 'sure_outcome' },
+    //         { id: 'cover_story', name: 'Cover Story', type: 'Passive', desc: 'Gain a false identity and a relevant cultural expertise.', parent: 'plausible_excuse' },
+    //         { id: 'subtle_takedown', name: 'Subtle Takedown', type: '1 Action', desc: 'Unarmed attack vs unsuspecting target\'s Cognitive. Hit: silence target.', parent: 'cover_story', prereq: { skill: 'ins', rank: 3 } },
+    //         { id: 'mighty', name: 'Mighty', type: 'Passive', desc: 'Deal extra damage 1 + tier for each Action spent on an attack.', parent: 'cover_story' },
+    //         { id: 'mercurial_facade', name: 'Mercurial Facade', type: 'Special', desc: 'Disguise using Deception without supplies. First character to see through is Surprised.', parent: 'subtle_takedown', prereq: { skill: 'decp', rank: 3 } },
+    //         { id: 'high_society_contacts', name: 'High Society Contacts', type: 'Special', desc: 'Gain High Society expertise. Spend 2 focus to add opportunity to social test.', parent: 'cover_story' }
+    //       ],
+    //       thief: [
+    //         { id: 'risky_behavior', name: 'Risky Behavior', type: 'Special', desc: 'Before a test, spend 1 focus to raise the stakes.', prereq: { skill: 'ins', rank: 2 } },
+    //         { id: 'cheap_shot', name: 'Cheap Shot', type: '1 Action', desc: 'Unarmed attack vs Cognitive to Stun. Can spend opportunity to steal item.' },
+    //         { id: 'double_down', name: 'Double Down', type: 'Special', desc: 'Reroll Opportunist again. Complication costs 2 focus.', parent: 'risky_behavior' },
+    //         { id: 'surefooted', name: 'Surefooted', type: 'Passive', desc: 'Movement rate +10. Reduce falling/terrain damage by twice tier.', parent: 'cheap_shot' },
+    //         { id: 'underworld_contacts', name: 'Underworld Contacts', type: 'Special', desc: 'Gain Criminal Groups expertise. Spend 2 focus to add opportunity to social test.', parent: 'double_down' },
+    //         { id: 'shadow_step', name: 'Shadow Step', type: 'Fast', desc: 'After Disengage, spend 2 focus to hide via Thievery test.', parent: 'surefooted', prereq: { skill: 'th', rank: 3 } },
+    //         { id: 'fast_talker', name: 'Fast Talker', type: 'Free Action', desc: 'Spend 2 focus to gain Free Action for spiritual skill tests.', parent: 'underworld_contacts', prereq: { skill: 'ins', rank: 3 } },
+    //         { id: 'tricksters_hand', name: 'Trickster\'s Hand', type: 'Free Action', desc: 'Spend 2 focus to gain Free Action for physical skill tests.', parent: 'shadow_step', prereq: { skill: 'th', rank: 3 } }
+    //       ]
+    //     }
+    //   },
+    //   envoy: {
+    //     specialties: ["Diplomat", "Faithful", "Mentor"],
+    //     startingTalent: "Rousing Presence",
+    //     startingTalentType: "1 Action",
+    //     startingTalentDesc: "Ally within 30ft becomes Determined until end of scene.",
+    //     talentTrees: {
+    //       diplomat: [
+    //         { id: 'steadfast_challenge', name: 'Steadfast Challenge', type: '1 Action', desc: 'Test Discipline vs Spiritual to Disorient target.', prereq: { skill: 'dis', rank: 1 } },
+    //         { id: 'collected', name: 'Collected', type: 'Passive', desc: 'Increase your Cognitive and Spiritual defenses by 2.' },
+    //         { id: 'withering_retort', name: 'Withering Retort', type: 'Reaction', desc: 'Increase deflect by Discipline ranks against an attack.', parent: 'steadfast_challenge', prereq: { skill: 'dis', rank: 2 } },
+    //         { id: 'well_dressed', name: 'Well Dressed', type: 'Special', desc: 'Gain Fashion expertise. Advantage on first social test.', parent: 'collected' },
+    //         { id: 'calm_appeal', name: 'Calm Appeal', type: 'Special', desc: 'Spend 1 focus to pacify Disoriented target.', parent: 'withering_retort', prereq: { skill: 'dis', rank: 2 } },
+    //         { id: 'high_society_contacts', name: 'High Society Contacts', type: 'Special', desc: 'Gain High Society expertise. Spend 2 focus to add opportunity.', parent: 'well_dressed' },
+    //         { id: 'peaceful_solution', name: 'Peaceful Solution', type: 'Free Action', desc: 'If all non-minions are pacified, end combat.', parent: 'calm_appeal', prereq: { skill: 'dis', rank: 3 } },
+    //         { id: 'practiced_oratory', name: 'Practiced Oratory', type: 'Special', desc: 'Spend focus to add extra targets to Leader actions.', parent: 'high_society_contacts', prereq: { skill: 'pers', rank: 3 } }
+    //       ],
+    //       faithful: [
+    //         { id: 'customary_garb', name: 'Customary Garb', type: 'Passive', desc: 'Increase Physical and Spiritual defenses by 2 while dressed appropriately.' },
+    //         { id: 'galvanize', name: 'Galvanize', type: '2 Actions', desc: 'Ally rolls recovery die and recovers focus.' },
+    //         { id: 'devoted_presence', name: 'Devoted Presence', type: 'Special', desc: 'Remove Prone, Slowed, Stunned, Surprised when using Rousing Presence.', parent: 'customary_garb', prereq: { skill: 'lore', rank: 1 } },
+    //         { id: 'composed', name: 'Composed', type: 'Passive', desc: 'Increase max focus by your tier.', parent: 'galvanize' },
+    //         { id: 'stalwart_presence', name: 'Stalwart Presence', type: 'Special', desc: 'Increase target defense by 2 when using Rousing Presence.', parent: 'devoted_presence', prereq: { skill: 'dis', rank: 2 } },
+    //         { id: 'applied_motivation', name: 'Applied Motivation', type: 'Passive', desc: 'Healing focus restores extra equal to half Lore ranks.', parent: 'composed', prereq: { skill: 'dis', rank: 2 } },
+    //         { id: 'sage_counsel', name: 'Sage Counsel', type: 'Special', desc: 'Grant Rousing Presence when Aiding.', parent: 'stalwart_presence', prereq: { skill: 'lore', rank: 3 } },
+    //         { id: 'inspired_zeal', name: 'Inspired Zeal', type: 'Special', desc: 'Allies recover focus when another uses Determined.', parent: 'applied_motivation', prereq: { skill: 'dis', rank: 3 } }
+    //       ],
+    //       mentor: [
+    //         { id: 'sound_advice', name: 'Sound Advice', type: 'Reaction', desc: 'Use Rousing Presence on ally who failed a test.' },
+    //         { id: 'practical_demonstration', name: 'Practical Demonstration', type: 'Free Action', desc: 'Use Rousing Presence as Fast action after hitting/gaining advantage.', prereq: { skill: 'lead', rank: 1 } },
+    //         { id: 'lessons_in_patience', name: 'Lessons in Patience', type: 'Passive', desc: 'Gain Motivational Speech expertise. Rousing Presence restores 1 focus.', parent: 'sound_advice', prereq: { skill: 'dis', rank: 2 } },
+    //         { id: 'mighty', name: 'Mighty', type: 'Passive', desc: 'Extra damage per action spent.' },
+    //         { id: 'instill_confidence', name: 'Instill Confidence', type: 'Special', desc: 'Rousing Presence makes an ally Focused instead of Determined.', parent: 'lessons_in_patience' },
+    //         { id: 'guiding_oration', name: 'Guiding Oration', type: 'Passive', desc: 'Ally gets advantage on next test vs your target.', parent: 'mighty', prereq: { skill: 'lead', rank: 2 } },
+    //         { id: 'foresight_mentor', name: 'Foresight', type: 'Passive', desc: 'Gain an additional Reaction each turn.', parent: 'instill_confidence', prereq: { skill: 'dis', rank: 3 } },
+    //         { id: 'rallying_shout', name: 'Rallying Shout', type: 'Passive', desc: 'Rousing Presence can revive Unconscious ally.', parent: 'guiding_oration', prereq: { skill: 'lead', rank: 3 } }
+    //       ]
+    //     }
+    //   },
+    //   hunter: {
+    //     specialties: ["Archer", "Assassin", "Tracker"],
+    //     startingTalent: "Seek Quarry",
+    //     startingTalentType: "Special",
+    //     startingTalentDesc: "Gain advantage on tests to find, attack, and study quarry.",
+    //     talentTrees: {
+    //       archer: [
+    //         { id: 'tagging_shot', name: 'Tagging Shot', type: '3 Actions', desc: 'Ranged attack marks target as quarry.', prereq: { skill: 'perc', rank: 2 } },
+    //         { id: 'combat_training', name: 'Combat Training', type: 'Special', desc: 'Gain expertise. Graze without focus once per round.' },
+    //         { id: 'sharp_eye', name: 'Sharp Eye', type: 'Special', desc: 'Identify target stats or resource status.', parent: 'tagging_shot' },
+    //         { id: 'steady_aim', name: 'Steady Aim', type: '1 Action', desc: 'Increase range and deal extra damage equal to Perception ranks.', parent: 'combat_training', prereq: { skill: 'agi', rank: 1 } },
+    //         { id: 'exploit_weakness', name: 'Exploit Weakness', type: 'Free Action', desc: 'Advantage on quarry without action.', parent: 'sharp_eye', prereq: { skill: 'perc', rank: 3 } },
+    //         { id: 'backstep', name: 'Backstep', type: 'Free Action', desc: 'Disengage after ranged attack.', parent: 'steady_aim', prereq: { skill: 'agi', rank: 2 } },
+    //         { id: 'unrelenting_salvo', name: 'Unrelenting Salvo', type: 'Passive', desc: 'Strike quarry multiple times per turn.', parent: 'exploit_weakness', prereq: { skill: 'agi', rank: 3 } },
+    //         { id: 'hardy', name: 'Hardy', type: 'Passive', desc: 'Gain +1 max health per level.', parent: 'backstep' }
+    //       ],
+    //       assassin: [
+    //         { id: 'startling_blow', name: 'Startling Blow', type: '1 Action', desc: 'Unarmed attack Surprises target.', prereq: { skill: 'st', rank: 1 } },
+    //         { id: 'killing_edge', name: 'Killing Edge', type: 'Passive', desc: 'Expertises. Weapons gain Deadly and Quickdraw.', prereq: { skill: 'perc', rank: 2 } },
+    //         { id: 'fatal_thrust', name: 'Fatal Thrust', type: '2 Actions', desc: 'Heavy bonus damage vs unsuspecting target.', parent: 'startling_blow', prereq: { skill: 'perc', rank: 3 } },
+    //         { id: 'shadowing', name: 'Shadowing', type: 'Special', desc: 'Avoid notice, designate quarry.', parent: 'killing_edge', prereq: { skill: 'st', rank: 2 } },
+    //         { id: 'mighty', name: 'Mighty', type: 'Passive', desc: 'Extra damage per action spent.' },
+    //         { id: 'cold_eyes', name: 'Cold Eyes', type: 'Passive', desc: 'Recover focus when quarry defeated.', parent: 'shadowing' },
+    //         { id: 'swift_strikes', name: 'Swift Strikes', type: '1 Action', desc: 'Make second strike with same weapon.', parent: 'mighty' },
+    //         { id: 'sidestep', name: 'Sidestep', type: 'Special', desc: 'Extra reaction to Dodge without heavy armor.', parent: 'cold_eyes', prereq: { skill: 'st', rank: 3 } }
+    //       ],
+    //       tracker: [
+    //         { id: 'deadly_trap', name: 'Deadly Trap', type: '2 Actions', desc: 'Conceal Immobilizing or impaling traps.', prereq: { skill: 'surv', rank: 1 } },
+    //         { id: 'animal_bond', name: 'Animal Bond', type: 'Special', desc: 'Defenses +1 near companion. Commands.' },
+    //         { id: 'experienced_trapper', name: 'Experienced Trapper', type: 'Special', desc: 'Foraging and improved traps.', parent: 'deadly_trap', prereq: { skill: 'perc', rank: 2 } },
+    //         { id: 'protective_bond', name: 'Protective Bond', type: '1 Action', desc: 'Companion protects ally.', parent: 'animal_bond' },
+    //         { id: 'surefooted', name: 'Surefooted', type: 'Passive', desc: 'Movement +10. Reduce falling damage.', parent: 'experienced_trapper' },
+    //         { id: 'feral_connection', name: 'Feral Connection', type: 'Passive', desc: 'Companion health and test bonuses.', parent: 'protective_bond', prereq: { skill: 'surv', rank: 2 } },
+    //         { id: 'hunters_edge', name: 'Hunter\'s Edge', type: 'Passive', desc: 'Companion advantage and improved traps.', parent: 'surefooted', prereq: { skill: 'surv', rank: 3 } },
+    //         { id: 'pack_hunting', name: 'Pack Hunting', type: 'Reaction', desc: 'Ally damage bonus vs quarry.', parent: 'feral_connection', prereq: { skill: 'perc', rank: 3 } }
+    //       ]
+    //     }
+    //   },
+    //   leader: {
+    //     specialties: ["Champion", "Officer", "Politico"],
+    //     startingTalent: "Decisive Command",
+    //     startingTalentType: "1 Action",
+    //     startingTalentDesc: "Grant ally command die.",
+    //     talentTrees: {
+    //       champion: [
+    //         { id: 'combat_coordination', name: 'Combat Coordination', type: 'Free Action', desc: 'Action economy for Decisive Command.', prereq: { skill: 'lead', rank: 2 } },
+    //         { id: 'valiant_intervention', name: 'Valiant Intervention', type: '1 Action', desc: 'Protect ally with Athletics.', prereq: { skill: 'ath', rank: 1 } },
+    //         { id: 'imposing_posture', name: 'Imposing Posture', type: 'Passive', desc: 'Disorient enemies in reach.', parent: 'combat_coordination', prereq: { skill: 'ath', rank: 2 } },
+    //         { id: 'hardy', name: 'Hardy', type: 'Passive', desc: 'Health bonus.' },
+    //         { id: 'mighty', name: 'Mighty', type: 'Passive', desc: 'Damage bonus.' },
+    //         { id: 'resolute_stand', name: 'Resolute Stand', type: 'Special', desc: 'Improved tanking.', parent: 'hardy', prereq: { skill: 'ath', rank: 1 } },
+    //         { id: 'resilient_hero', name: 'Resilient Hero', type: 'Reaction', desc: 'Avoid drop to 0 health.', parent: 'mighty', prereq: { skill: 'ath', rank: 3 } },
+    //         { id: 'demonstrative_command', name: 'Demonstrative Command', type: 'Special', desc: 'Improved command die.', parent: 'resolute_stand', prereq: { skill: 'lead', rank: 2 } }
+    //       ],
+    //       officer: [
+    //         { id: 'composed', name: 'Composed', type: 'Passive', desc: 'Focus bonus.' },
+    //         { id: 'through_the_fray', name: 'Through the Fray', type: '1 Action', desc: 'Ally action economy.', prereq: { skill: 'pers', rank: 1 } },
+    //         { id: 'well_supplied', name: 'Well Supplied', type: 'Special', desc: 'Expertise and social bonuses.', parent: 'composed', prereq: { skill: 'pers', rank: 2 } },
+    //         { id: 'customary_garb', name: 'Customary Garb', type: 'Passive', desc: 'Defense bonus.' },
+    //         { id: 'relentless_march', name: 'Relentless March', type: 'Passive', desc: 'Improved command.', parent: 'well_supplied', prereq: { skill: 'pers', rank: 3 } },
+    //         { id: 'confident_command', name: 'Confident Command', type: 'Special', desc: 'Improved command die.', parent: 'customary_garb', prereq: { skill: 'lead', rank: 2 } },
+    //         { id: 'synchronized_assault', name: 'Synchronized Assault', type: '2 Actions', desc: 'Team strike.', parent: 'relentless_march', prereq: { skill: 'lead', rank: 3 } },
+    //         { id: 'authority', name: 'Authority', type: 'Passive', desc: 'Range/Target bonus.', parent: 'confident_command' }
+    //       ],
+    //       politico: [
+    //         { id: 'cutthroat_tactics', name: 'Cutthroat Tactics', type: 'Special', desc: 'Stakes and focus recovery.', prereq: { skill: 'decp', rank: 1 } },
+    //         { id: 'tactical_ploy', name: 'Tactical Ploy', type: '1 Action', desc: 'Target penalties.' },
+    //         { id: 'rumormonger', name: 'Rumormonger', type: 'Special', desc: 'Expertise and misinformation.', parent: 'cutthroat_tactics' },
+    //         { id: 'well_dressed', name: 'Well Dressed', type: 'Special', desc: 'Fashion and social bonus.' },
+    //         { id: 'baleful', name: 'Baleful', type: 'Passive', desc: 'Resistance penalty.', parent: 'rumormonger' },
+    //         { id: 'set_at_odds', name: 'Set at Odds', type: '2 Actions', desc: 'Provoke infighting.', parent: 'well_dressed', prereq: { skill: 'lead', rank: 3 } },
+    //         { id: 'shrewd_command', name: 'Shrewd Command', type: 'Special', desc: 'Improved command die.', parent: 'baleful', prereq: { skill: 'lead', rank: 2 } },
+    //         { id: 'grand_deception', name: 'Grand Deception', type: '2 Actions', desc: 'Alter reality via ruse.', parent: 'set_at_odds', prereq: { skill: 'decp', rank: 3 } }
+    //       ]
+    //     }
+    //   },
+    //   scholar: {
+    //     specialties: ["Artifabrian", "Strategist", "Surgeon", "Devotary of Thirst"],
+    //     startingTalent: "Erudition",
+    //     startingTalentType: "Special",
+    //     startingTalentDesc: "Temporary expertises and ranks.",
+    //     talentTrees: {
+    //       artifabrian: [
+    //         { id: 'efficient_engineer', name: 'Efficient Engineer', type: 'Passive', desc: 'Crafting efficiency.', prereq: { skill: 'cr', rank: 1 } },
+    //         { id: 'prized_acquisition', name: 'Prized Acquisition', type: 'Special', desc: 'Fabrial crafting.' },
+    //         { id: 'deep_study', name: 'Deep Study', type: 'Passive', desc: 'Improved Erudition.', parent: 'efficient_engineer' },
+    //         { id: 'inventive_design', name: 'Inventive Design', type: 'Passive', desc: 'Improved fabrial tier.', parent: 'prized_acquisition', prereq: { skill: 'cr', rank: 2 } },
+    //         { id: 'fine_handiwork', name: 'Fine Handiwork', type: 'Special', desc: 'Crafting cost reduction.', parent: 'deep_study' },
+    //         { id: 'overcharge', name: 'Overcharge', type: 'Special', desc: 'Action economy for Strike.', parent: 'inventive_design', prereq: { skill: 'cr', rank: 3 } },
+    //         { id: 'experimental_tinkering', name: 'Experimental Tinkering', type: 'Special', desc: 'Fast crafting.', parent: 'fine_handiwork' },
+    //         { id: 'overwhelm_details', name: 'Overwhelm with Details', type: 'Special', desc: 'Lore modifier bonus.', parent: 'overcharge', prereq: { skill: 'lore', rank: 3 } }
+    //       ],
+    //       strategist: [
+    //         { id: 'strategize', name: 'Strategize', type: 'Special', desc: 'Grant advantage to ally.', prereq: { skill: 'ded', rank: 1 } },
+    //         { id: 'mind_body', name: 'Mind and Body', type: 'Passive', desc: 'Skill/Expertise bonus.' },
+    //         { id: 'composed', name: 'Composed', type: 'Passive', desc: 'Focus bonus.', parent: 'strategize' },
+    //         { id: 'know_your_moment', name: 'Know Your Moment', type: 'Passive', desc: 'Defense bonus.', parent: 'mind_body', prereq: { skill: 'ded', rank: 2 } },
+    //         { id: 'deep_contemplation', name: 'Deep Contemplation', type: '1 Action', desc: 'Erudition reassignment.', parent: 'composed', prereq: { skill: 'lore', rank: 2 } },
+    //         { id: 'keen_insight', name: 'Keen Insight', type: 'Passive', desc: 'Debuff target.', parent: 'know_your_moment' },
+    //         { id: 'contingency', name: 'Contingency', type: 'Reaction', desc: 'Remove complications.', parent: 'deep_contemplation', prereq: { skill: 'lore', rank: 3 } },
+    //         { id: 'turning_point', name: 'Turning Point', type: '1 Action', desc: 'Team momentum.', parent: 'keen_insight', prereq: { skill: 'ded', rank: 3 } }
+    //       ],
+    //       surgeon: [
+    //         { id: 'field_medicine', name: 'Field Medicine', type: '1 Action', desc: 'Healing via Medicine.', prereq: { skill: 'med', rank: 1 } },
+    //         { id: 'emotional_intelligence', name: 'Emotional Intelligence', type: 'Passive', desc: 'Diagnosis expertise.' },
+    //         { id: 'anatomical_insight', name: 'Anatomical Insight', type: 'Special', desc: 'Exhaust target.', parent: 'field_medicine' },
+    //         { id: 'collected', name: 'Collected', type: 'Passive', desc: 'Defense bonus.', parent: 'emotional_intelligence' },
+    //         { id: 'swift_healer', name: 'Swift Healer', type: 'Free Action', desc: 'Improved field medicine.', parent: 'anatomical_insight', prereq: { skill: 'med', rank: 2 } },
+    //         { id: 'applied_medicine', name: 'Applied Medicine', type: 'Passive', desc: 'Healing bonus.', parent: 'collected', prereq: { skill: 'lore', rank: 2 } },
+    //         { id: 'ongoing_care', name: 'Ongoing Care', type: 'Special', desc: 'Expertise and condition removal.', parent: 'swift_healer', prereq: { skill: 'lore', rank: 3 } },
+    //         { id: 'resuscitation', name: 'Resuscitation', type: 'Special', desc: 'Revive ally.', parent: 'applied_medicine', prereq: { skill: 'med', rank: 3 } }
+    //       ],
+    //       devotary_of_thirst: [
+    //         { id: 'affairudition', name: 'Affairudition', type: 'Special', desc: 'Seduction expertise.', parent: 'affairudition' },
+    //         { id: 'charismatic', name: 'Charismatic', type: 'Passive', desc: 'Social bonus.', prereq: { skill: 'pers', rank: 1 } },
+    //         { id: 'for_the_plot', name: 'For the Plot', type: 'Special', desc: 'Raise stakes.', parent: 'affairudition', prereq: { skill: 'lore', rank: 1 } },
+    //         { id: 'overwhelm_senses', name: 'Overwhelm Senses', type: 'Free Action', desc: 'Disorient target.', parent: 'charismatic', prereq: { skill: 'lore', rank: 2 } },
+    //         { id: 'its_complicated', name: 'It\'s Complicated', type: 'Special', desc: 'Target complication.', parent: 'for_the_plot', prereq: { skill: 'pers', rank: 2 } },
+    //         { id: 'smoldering_graze', name: 'Smoldering Graze', type: 'Passive', desc: 'Damage bonus.', parent: 'overwhelm_senses', prereq: { skill: 'pers', rank: 3 } },
+    //         { id: 'pillow_talk', name: 'Pillow Talk', type: 'Passive', desc: 'Specialist expertise.', parent: 'its_complicated', prereq: { skill: 'pers', rank: 3 } },
+    //         { id: 'most_ardently', name: 'Most Ardently', type: 'Passive', desc: 'Social status.', parent: 'smoldering_graze', prereq: { skill: 'lore', rank: 3 } }
+    //       ]
+    //     }
+    //   },
+    //   warrior: {
+    //     specialties: ["Duelist", "Shardbearer", "Soldier"],
+    //     startingTalent: "Vigilant Stance",
+    //     startingTalentType: "1 Action",
+    //     startingTalentDesc: "Enter Vigilant Stance: Reduce focus cost of reactions.",
+    //     talentTrees: {
+    //       shardbearer: [
+    //         { id: 'shard_training', name: 'Shard Training', type: 'Special', desc: 'Expertises and charges.' },
+    //         { id: 'stonestance', name: 'Stonestance', type: '1 Action', desc: 'Defense/Protection stance.' },
+    //         { id: 'windstance', name: 'Windstance', type: '1 Action', desc: 'Agility stance.', parent: 'shard_training', prereq: { skill: 'perc', rank: 1 } },
+    //         { id: 'mighty', name: 'Mighty', type: 'Passive', desc: 'Extra damage.' },
+    //         { id: 'shattering_blow', name: 'Shattering Blow', type: 'Special', desc: 'Push and armor depletion.', parent: 'windstance', prereq: { skill: 'perc', rank: 2 } },
+    //         { id: 'bloodstance', name: 'Bloodstance', type: '1 Action', desc: 'Aggressive stance.', parent: 'mighty', prereq: { skill: 'ath', rank: 2 } },
+    //         { id: 'precise_parry', name: 'Precise Parry', type: 'Reaction', desc: 'Damage reduction.', parent: 'shattering_blow', prereq: { skill: 'perc', rank: 3 } },
+    //         { id: 'meteoric_leap', name: 'Meteoric Leap', type: '2 Actions', desc: 'Leap and attack.', parent: 'bloodstance', prereq: { skill: 'ath', rank: 3 } }
+    //       ],
+    //       soldier: [
+    //         { id: 'cautious_advance', name: 'Cautious Advance', type: 'Free Action', desc: 'Movement and Brace.', prereq: { skill: 'dis', rank: 1 } },
+    //         { id: 'combat_training', name: 'Combat Training', type: 'Special', desc: 'Expertise and graze.' },
+    //         { id: 'defensive_position', name: 'Defensive Position', type: 'Passive', desc: 'Improved Brace.', parent: 'cautious_advance', prereq: { skill: 'ath', rank: 2 } },
+    //         { id: 'devastating_blow', name: 'Devastating Blow', type: 'Free Action', desc: 'Bonus damage.', parent: 'combat_training', prereq: { skill: 'ath', rank: 3 } },
+    //         { id: 'formation_drills', name: 'Formation Drills', type: 'Passive', desc: 'Team Brace.', parent: 'defensive_position', prereq: { skill: 'dis', rank: 2 } },
+    //         { id: 'hardy', name: 'Hardy', type: 'Passive', desc: 'Health bonus.', parent: 'devastating_blow' },
+    //         { id: 'wary', name: 'Wary', type: 'Passive', desc: 'Surprise immunity.', parent: 'formation_drills', prereq: { skill: 'dis', rank: 3 } },
+    //         { id: 'swift_strikes', name: 'Swift Strikes', type: '1 Action', desc: 'Double strike.', parent: 'hardy' }
+    //       ],
+    //       duelist: [
+    //         { id: 'practiced_kata', name: 'Practiced Kata', type: 'Special', desc: 'Stance interaction.' },
+    //         { id: 'flamestance', name: 'Flamestance', type: '1 Action', desc: 'Solo duel stance.', prereq: { skill: 'intm', rank: 1 } },
+    //         { id: 'ironstance', name: 'Ironstance', type: '1 Action', desc: 'Reaction stance.', parent: 'practiced_kata', prereq: { skill: 'ath', rank: 2 } },
+    //         { id: 'signature_weapon', name: 'Signature Weapon', type: 'Passive', desc: 'Weapon focus.', parent: 'flamestance' },
+    //         { id: 'surefooted', name: 'Surefooted', type: 'Passive', desc: 'Movement rate bonus.', parent: 'ironstance' },
+    //         { id: 'feinting_strike', name: 'Feinting Strike', type: '1 Action', desc: 'Resource depletion.', parent: 'signature_weapon', prereq: { skill: 'intm', rank: 2 } },
+    //         { id: 'vinestance', name: 'Vinestance', type: '1 Action', desc: 'Defense/Counter stance.', parent: 'surefooted', prereq: { skill: 'ath', rank: 3 } },
+    //         { id: 'wits_end', name: 'Wit\'s End', type: 'Free Action', desc: 'Finishing move.', parent: 'feinting_strike', prereq: { skill: 'intm', rank: 3 } }
+    //       ]
+    //     }
+    //   }
+    // };
+
+    const radiantPathsData = {
+      dustbringer: {
+        spren: "Ashspren",
+        surges: ["abrasion", "division"],
+        startingTalent: "First Ideal",
+        startingTalentType: "Special",
+        startingTalentDesc: "Gain Investiture score and the Breathe Stormlight, Enhance, and Regenerate actions. When you complete the goal 'Speak the First Ideal,' you become Empowered and gain Abrasion and Division.",
+        tree: [
+          { id: 'second_ideal_dustbringer', name: 'Second Ideal', type: 'Special', desc: 'When you complete the goal "Speak the Second Ideal," you become Empowered and can use Enhance as a Free Action without spending Investiture.', prereq: { level: 4 } },
+          { id: 'third_ideal_dustbringer', name: 'Third Ideal', type: 'Special', desc: 'When you complete the goal "Speak the Third Ideal," you become Empowered and can manifest your spren as a Radiant Shardblade.', parent: 'second_ideal_dustbringer', prereq: { level: 8 } },
+          { id: 'fourth_ideal_dustbringer', name: 'Fourth Ideal', type: 'Special', desc: 'When you complete the goal "Speak the Fourth Ideal," you become Empowered and can manifest Radiant Shardplate.', parent: 'third_ideal_dustbringer', prereq: { level: 13 } },
+          { id: 'searing_dust_storm', name: 'Searing Dust Storm', type: 'Special', desc: 'Spend Investiture to kick up an obscuring cloud of dust as you Move. Enemies in this cloud take extra damage equal to your ranks in Discipline.' },
+          { id: 'invested', name: 'Invested', type: 'Passive', desc: 'Your max Investiture increases by your tier.', parent: 'searing_dust_storm' },
+          { id: 'wound_regeneration', name: 'Wound Regeneration', type: 'Special', desc: 'When you Regenerate, spend 2 Investiture to recover from a temporary injury, or spend 3 Investiture to recover from a permanent one.', parent: 'invested' },
+          { id: 'deepened_bond', name: 'Deepened Bond', type: 'Passive', desc: 'Your spren bond range increases to 100 feet, and giving your spren a task costs 1 fewer focus.', parent: 'third_ideal_dustbringer' },
+          { id: 'take_squire_dustbringer', name: 'Take Squire', type: 'Special', desc: 'Choose non-Radiant characters as your squires, granting them one or both surges. You can have a number of squires up to your Ideal.', parent: 'third_ideal_dustbringer' }
+        ]
+      },
+      edgedancer: {
+        spren: "Cultivationspren",
+        surges: ["abrasion", "progression"],
+        startingTalent: "First Ideal",
+        startingTalentType: "Special",
+        startingTalentDesc: "Gain Investiture score and the Breathe Stormlight, Enhance, and Regenerate actions. When you complete the goal 'Speak the First Ideal,' you become Empowered and gain Abrasion and Progression.",
+        tree: [
+          { id: 'second_ideal_edgedancer', name: 'Second Ideal', type: 'Special', desc: 'When you complete the goal "Speak the Second Ideal," you become Empowered and can use Enhance as a Free Action without spending Investiture.', prereq: { level: 4 } },
+          { id: 'third_ideal_edgedancer', name: 'Third Ideal', type: 'Special', desc: 'When you complete the goal "Speak the Third Ideal," you become Empowered and can manifest your spren as a Radiant Shardblade.', parent: 'second_ideal_edgedancer', prereq: { level: 8 } },
+          { id: 'fourth_ideal_edgedancer', name: 'Fourth Ideal', type: 'Special', desc: 'When you complete the goal "Speak the Fourth Ideal," you become Empowered and can manifest Radiant Shardplate.', parent: 'third_ideal_edgedancer', prereq: { level: 13 } },
+          { id: 'edgedancers_grace', name: 'Edgedancer\'s Grace', type: 'Passive', desc: 'While you have Investiture, gain an additional Reaction to Avoid Danger or Dodge without spending focus.', prereq: { skill: 'agi', rank: 2 } },
+          { id: 'invested', name: 'Invested', type: 'Passive', desc: 'Your max Investiture increases by your tier.', parent: 'edgedancers_grace' },
+          { id: 'wound_regeneration', name: 'Wound Regeneration', type: 'Special', desc: 'When you Regenerate, spend 2 Investiture to recover from a temporary injury, or spend 3 Investiture to recover from a permanent one.', parent: 'invested' },
+          { id: 'deepened_bond', name: 'Deepened Bond', type: 'Passive', desc: 'Your spren bond range increases to 100 feet, and giving your spren a task costs 1 fewer focus.', parent: 'third_ideal_edgedancer' },
+          { id: 'take_squire_edgedancer', name: 'Take Squire', type: 'Special', desc: 'Choose non-Radiant characters as your squires, granting them one or both surges. You can have a number of squires up to your Ideal.', parent: 'third_ideal_edgedancer' }
+        ]
+      },
+      elsecaller: {
+        spren: "Inkspren",
+        surges: ["transformation", "transportation"],
+        startingTalent: "First Ideal",
+        startingTalentType: "Special",
+        startingTalentDesc: "Gain Investiture score and the Breathe Stormlight, Enhance, and Regenerate actions. When you complete the goal 'Speak the First Ideal,' you become Empowered and gain Transformation and Transportation.",
+        tree: [
+          { id: 'second_ideal_elsecaller', name: 'Second Ideal', type: 'Special', desc: 'When you complete the goal "Speak the Second Ideal," you become Empowered and can use Enhance as a Free Action without spending Investiture.', prereq: { level: 4 } },
+          { id: 'third_ideal_elsecaller', name: 'Third Ideal', type: 'Special', desc: 'When you complete the goal "Speak the Third Ideal," you become Empowered and can manifest your spren as a Radiant Shardblade.', parent: 'second_ideal_elsecaller', prereq: { level: 8 } },
+          { id: 'fourth_ideal_elsecaller', name: 'Fourth Ideal', type: 'Special', desc: 'When you complete the goal "Speak the Fourth Ideal," you become Empowered and can manifest Radiant Shardplate.', parent: 'third_ideal_elsecaller', prereq: { level: 13 } },
+          { id: 'elsecallers_perspicacity', name: 'Elsecaller\'s Perspicacity', type: 'Passive', desc: 'While you have Investiture, gain an advantage on reactions, Deduction tests, and tests to peer between realms.', prereq: { skill: 'ded', rank: 2 } },
+          { id: 'invested', name: 'Invested', type: 'Passive', desc: 'Your max Investiture increases by your tier.', parent: 'elsecallers_perspicacity' },
+          { id: 'wound_regeneration', name: 'Wound Regeneration', type: 'Special', desc: 'When you Regenerate, spend 2 Investiture to recover from a temporary injury, or spend 3 Investiture to recover from a permanent one.', parent: 'invested' },
+          { id: 'deepened_bond', name: 'Deepened Bond', type: 'Passive', desc: 'Your spren bond range increases to 100 feet, and giving your spren a task costs 1 fewer focus.', parent: 'third_ideal_elsecaller' },
+          { id: 'take_squire_elsecaller', name: 'Take Squire', type: 'Special', desc: 'Choose non-Radiant characters as your squires, granting them one or both surges. You can have a number of squires up to your Ideal.', parent: 'third_ideal_elsecaller' }
+        ]
+      },
+      lightweaver: {
+        spren: "Cryptic",
+        surges: ["illumination", "transformation"],
+        startingTalent: "First Ideal",
+        startingTalentType: "Special",
+        startingTalentDesc: "Gain Investiture score and the Breathe Stormlight, Enhance, and Regenerate actions. When you complete the goal 'Speak the First Ideal,' you become Empowered and gain Illumination and Transformation.",
+        tree: [
+          { id: 'second_ideal_lightweaver', name: 'Second Ideal', type: 'Special', desc: 'When you complete the goal "Speak the Second Ideal," you become Empowered and can use Enhance as a Free Action without spending Investiture.', prereq: { level: 4 } },
+          { id: 'third_ideal_lightweaver', name: 'Third Ideal', type: 'Special', desc: 'When you complete the goal "Speak the Third Ideal," you become Empowered and can manifest your spren as a Radiant Shardblade.', parent: 'second_ideal_lightweaver', prereq: { level: 8 } },
+          { id: 'fourth_ideal_lightweaver', name: 'Fourth Ideal', type: 'Special', desc: 'When you complete the goal "Speak the Fourth Ideal," you become Empowered and can manifest Radiant Shardplate.', parent: 'third_ideal_lightweaver', prereq: { level: 13 } },
+          { id: 'physical_illusion', name: 'Physical Illusion', type: '1 Action', desc: 'Spend Investiture to create a physical illusion with health and defenses. You control it with 1 Action, and it can test and attack using your Illumination.', parent: 'fourth_ideal_lightweaver' },
+          { id: 'invested', name: 'Invested', type: 'Passive', desc: 'Your max Investiture increases by your tier.' },
+          { id: 'wound_regeneration', name: 'Wound Regeneration', type: 'Special', desc: 'When you Regenerate, spend 2 Investiture to recover from a temporary injury, or spend 3 Investiture to recover from a permanent one.', parent: 'invested' },
+          { id: 'deepened_bond', name: 'Deepened Bond', type: 'Passive', desc: 'Your spren bond range increases to 100 feet, and giving your spren a task costs 1 fewer focus.', parent: 'third_ideal_lightweaver' },
+          { id: 'take_squire_lightweaver', name: 'Take Squire', type: 'Special', desc: 'Choose non-Radiant characters as your squires, granting them one or both surges. You can have a number of squires up to your Ideal.', parent: 'third_ideal_lightweaver' }
+        ]
+      },
+      skybreaker: {
+        spren: "Highspren",
+        surges: ["division", "gravitation"],
+        startingTalent: "First Ideal",
+        startingTalentType: "Special",
+        startingTalentDesc: "Gain Investiture score and the Breathe Stormlight, Enhance, and Regenerate actions. When you complete the goal 'Speak the First Ideal,' you become Empowered and gain Division and Gravitation.",
+        tree: [
+          { id: 'second_ideal_skybreaker', name: 'Second Ideal', type: 'Special', desc: 'When you complete the goal "Speak the Second Ideal," you become Empowered and can use Enhance as a Free Action without spending Investiture.', prereq: { level: 4 } },
+          { id: 'third_ideal_skybreaker', name: 'Third Ideal', type: 'Special', desc: 'When you complete the goal "Speak the Third Ideal," you become Empowered and can manifest your spren as a Radiant Shardblade.', parent: 'second_ideal_skybreaker', prereq: { level: 8 } },
+          { id: 'fourth_ideal_skybreaker', name: 'Fourth Ideal', type: 'Special', desc: 'When you complete the goal "Speak the Fourth Ideal," you become Empowered and can manifest Radiant Shardplate.', parent: 'third_ideal_skybreaker', prereq: { level: 13 } },
+          { id: 'soaring_destruction', name: 'Soaring Destruction', type: 'Free Action', desc: 'After you Move with a Basic Lashing, spend 1 focus to gain 1 Action for Division or its talents.' },
+          { id: 'invested', name: 'Invested', type: 'Passive', desc: 'Your max Investiture increases by your tier.', parent: 'soaring_destruction' },
+          { id: 'wound_regeneration', name: 'Wound Regeneration', type: 'Special', desc: 'When you Regenerate, spend 2 Investiture to recover from a temporary injury, or spend 3 Investiture to recover from a permanent one.', parent: 'invested' },
+          { id: 'deepened_bond', name: 'Deepened Bond', type: 'Passive', desc: 'Your spren bond range increases to 100 feet, and giving your spren a task costs 1 fewer focus.', parent: 'third_ideal_skybreaker' },
+          { id: 'take_squire_skybreaker', name: 'Take Squire', type: 'Special', desc: 'Choose non-Radiant characters as your squires, granting them one or both surges. You can have a number of squires up to your Ideal.', parent: 'third_ideal_skybreaker' }
+        ]
+      },
+      stoneward: {
+        spren: "Peakspren",
+        surges: ["cohesion", "tension"],
+        startingTalent: "First Ideal",
+        startingTalentType: "Special",
+        startingTalentDesc: "Gain Investiture score and the Breathe Stormlight, Enhance, and Regenerate actions. When you complete the goal 'Speak the First Ideal,' you become Empowered and gain Cohesion and Tension.",
+        tree: [
+          { id: 'second_ideal_stoneward', name: 'Second Ideal', type: 'Special', desc: 'When you complete the goal "Speak the Second Ideal," you become Empowered and can use Enhance as a Free Action without spending Investiture.', prereq: { level: 4 } },
+          { id: 'third_ideal_stoneward', name: 'Third Ideal', type: 'Special', desc: 'When you complete the goal "Speak the Third Ideal," you become Empowered and can manifest your spren as a Radiant Shardblade.', parent: 'second_ideal_stoneward', prereq: { level: 8 } },
+          { id: 'fourth_ideal_stoneward', name: 'Fourth Ideal', type: 'Special', desc: 'When you complete the goal "Speak the Fourth Ideal," you become Empowered and can manifest Radiant Shardplate.', parent: 'third_ideal_stoneward', prereq: { level: 13 } },
+          { id: 'cohesive_teamwork', name: 'Cohesive Teamwork', type: 'Passive', desc: 'When you Gain Advantage while having Investiture, the next test an ally makes against that target gains an advantage, and you can\'t be forcibly moved or knocked Prone.' },
+          { id: 'invested', name: 'Invested', type: 'Passive', desc: 'Your max Investiture increases by your tier.', parent: 'cohesive_teamwork' },
+          { id: 'wound_regeneration', name: 'Wound Regeneration', type: 'Special', desc: 'When you Regenerate, spend 2 Investiture to recover from a temporary injury, or spend 3 Investiture to recover from a permanent one.', parent: 'invested' },
+          { id: 'deepened_bond', name: 'Deepened Bond', type: 'Passive', desc: 'Your spren bond range increases to 100 feet, and giving your spren a task costs 1 fewer focus.', parent: 'third_ideal_stoneward' },
+          { id: 'take_squire_stoneward', name: 'Take Squire', type: 'Special', desc: 'Choose non-Radiant characters as your squires, granting them one or both surges. Your max number of squires equals your current level.', parent: 'third_ideal_stoneward' }
+        ]
+      },
+      truthwatcher: {
+        spren: "Mistspren",
+        surges: ["illumination", "progression"],
+        startingTalent: "First Ideal",
+        startingTalentType: "Special",
+        startingTalentDesc: "Gain Investiture score and the Breathe Stormlight, Enhance, and Regenerate actions. When you complete the goal 'Speak the First Ideal,' you become Empowered and gain Illumination and Progression.",
+        tree: [
+          { id: 'second_ideal_truthwatcher', name: 'Second Ideal', type: 'Special', desc: 'When you complete the goal "Speak the Second Ideal," you become Empowered and can use Enhance as a Free Action without spending Investiture.', prereq: { level: 4 } },
+          { id: 'third_ideal_truthwatcher', name: 'Third Ideal', type: 'Special', desc: 'When you complete the goal "Speak the Third Ideal," you become Empowered and can manifest your spren as a Radiant Shardblade.', parent: 'second_ideal_truthwatcher', prereq: { level: 8 } },
+          { id: 'fourth_ideal_truthwatcher', name: 'Fourth Ideal', type: 'Special', desc: 'When you complete the goal "Speak the Fourth Ideal," you become Empowered and can manifest Radiant Shardplate.', parent: 'third_ideal_truthwatcher', prereq: { level: 13 } },
+          { id: 'spiritual_healing', name: 'Spiritual Healing', type: 'Special', desc: 'Instead of healing yourself or an ally, spend 2 Investiture to restore half as much focus as the target would\'ve recovered health.' },
+          { id: 'invested', name: 'Invested', type: 'Passive', desc: 'Your max Investiture increases by your tier.', parent: 'spiritual_healing' },
+          { id: 'wound_regeneration', name: 'Wound Regeneration', type: 'Special', desc: 'When you Regenerate, spend 2 Investiture to recover from a temporary injury, or spend 3 Investiture to recover from a permanent one.', parent: 'invested' },
+          { id: 'deepened_bond', name: 'Deepened Bond', type: 'Passive', desc: 'Your spren bond range increases to 100 feet, and giving your spren a task costs 1 fewer focus.', parent: 'third_ideal_truthwatcher' },
+          { id: 'take_squire_truthwatcher', name: 'Take Squire', type: 'Special', desc: 'Choose non-Radiant characters as your squires, granting them one or both surges. You can have a number of squires up to your Ideal.', parent: 'third_ideal_truthwatcher' }
+        ]
+      },
+      willshaper: {
+        spren: "Lightspren",
+        surges: ["cohesion", "transportation"],
+        startingTalent: "First Ideal",
+        startingTalentType: "Special",
+        startingTalentDesc: "Gain Investiture score and the Breathe Stormlight, Enhance, and Regenerate actions. When you complete the goal 'Speak the First Ideal,' you become Empowered and gain Cohesion and Transportation.",
+        tree: [
+          { id: 'second_ideal_willshaper', name: 'Second Ideal', type: 'Special', desc: 'When you complete the goal "Speak the Second Ideal," you become Empowered and can use Enhance as a Free Action without spending Investiture.', prereq: { level: 4 } },
+          { id: 'third_ideal_willshaper', name: 'Third Ideal', type: 'Special', desc: 'When you complete the goal "Speak the Third Ideal," you become Empowered and can manifest your spren as a Radiant Shardblade.', parent: 'second_ideal_willshaper', prereq: { level: 8 } },
+          { id: 'fourth_ideal_willshaper', name: 'Fourth Ideal', type: 'Special', desc: 'When you complete the goal "Speak the Fourth Ideal," you become Empowered and can manifest Radiant Shardplate.', parent: 'third_ideal_willshaper', prereq: { level: 13 } },
+          { id: 'spiritual_cohesion', name: 'Spiritual Cohesion', type: '2 Actions', desc: 'Choose allies up to your current Ideal to become Determined. A Reaction from that condition increases that ally\'s Cognitive and Spiritual defenses by 2.' },
+          { id: 'invested', name: 'Invested', type: 'Passive', desc: 'Your max Investiture increases by your tier.', parent: 'spiritual_cohesion' },
+          { id: 'wound_regeneration', name: 'Wound Regeneration', type: 'Special', desc: 'When you Regenerate, spend 2 Investiture to recover from a temporary injury, or spend 3 Investiture to recover from a permanent one.', parent: 'invested' },
+          { id: 'deepened_bond', name: 'Deepened Bond', type: 'Passive', desc: 'Your spren bond range increases to 100 feet, and giving your spren a task costs 1 fewer focus.', parent: 'third_ideal_willshaper' },
+          { id: 'take_squire_willshaper', name: 'Take Squire', type: 'Special', desc: 'Choose non-Radiant characters as your squires, granting them one or both surges. You can have a number of squires up to your Ideal.', parent: 'third_ideal_willshaper' }
+        ]
+      },
+      windrunner: {
+        spren: "Honorspren",
+        surges: ["adhesion", "gravitation"],
+        startingTalent: "First Ideal",
+        startingTalentType: "1 Action",
+        startingTalentDesc: "Gain Investiture score and the Breathe Stormlight, Enhance, and Regenerate actions. When you complete the goal 'Speak the First Ideal,' you become Empowered and gain Adhesion and Gravitation.",
+        tree: [
+          { id: 'second_ideal_windrunner', name: 'Second Ideal', type: 'Special', desc: 'When you complete the goal "Speak the Second Ideal," you become Empowered and can use Enhance as a Free Action without spending Investiture.', prereq: { level: 4 } },
+          { id: 'third_ideal_windrunner', name: 'Third Ideal', type: 'Special', desc: 'When you complete the goal "Speak the Third Ideal," you become Empowered and can manifest your spren as a Radiant Shardblade.', parent: 'second_ideal_windrunner', prereq: { level: 8 } },
+          { id: 'fourth_ideal_windrunner', name: 'Fourth Ideal', type: 'Special', desc: 'When you complete the goal "Speak the Fourth Ideal," you become Empowered and can manifest Radiant Shardplate.', parent: 'third_ideal_windrunner', prereq: { level: 13 } },
+          { id: 'reverse_lashing', name: 'Reverse Lashing', type: 'Special', desc: 'Infuse a target with a Reverse Lashing using Adhesion, then choose one type of object to attract; the infused target attracts those objects in a distance equal to your gravitation rate.' },
+          { id: 'invested', name: 'Invested', type: 'Passive', desc: 'Your max Investiture increases by your tier.', parent: 'reverse_lashing' },
+          { id: 'wound_regeneration', name: 'Wound Regeneration', type: 'Special', desc: 'When you Regenerate, spend 2 Investiture to recover from a temporary injury, or spend 3 Investiture to recover from a permanent one.', parent: 'invested' },
+          { id: 'deepened_bond', name: 'Deepened Bond', type: 'Passive', desc: 'Your spren bond range increases to 100 feet, and giving your spren a task costs 1 fewer focus.', parent: 'third_ideal_windrunner' },
+          { id: 'take_squire_windrunner', name: 'Take Squire', type: 'Special', desc: 'Choose non-Radiant characters as your squires, granting them one or both surges. Your max number of squires equals twice your level.', parent: 'third_ideal_windrunner' }
+        ]
+      }
+    };
+
+    const surgesData = {
+      abrasion: [
+        { id: 'frictionless_motion', name: 'Frictionless Motion', type: 'Passive', desc: 'While infused with Abrasion, increase your movement by 10 and ignore Slowed.' },
+        { id: 'graceful_skating', name: 'Graceful Skating', type: 'Passive', desc: 'When you Skate and use its Move free action, you aren\'t restricted to moving in a straight line.', parent: 'frictionless_motion' },
+        { id: 'slippery_target', name: 'Slippery Target', type: 'Passive', desc: 'While infused with Abrasion, attacks can\'t graze you and Reactive Strikes against you gain a disadvantage.', parent: 'graceful_skating' },
+        { id: 'slick_combatant', name: 'Slick Combatant', type: 'Passive', desc: 'While infused with Abrasion, you can interrupt a Move with other actions. Deal extra damage on a mid-movement attack.', parent: 'slippery_target' },
+        { id: 'reverse_abrasion', name: 'Reverse Abrasion', type: 'Special', desc: 'You can increase the friction of an object or area, canceling difficult terrain and giving an advantage to interact with it.' },
+        { id: 'stormlight_reclamation_abrasion', name: 'Stormlight Reclamation', type: 'Free Action', desc: 'At the start of your turn, you can end any number of infusions to regain their remaining Investiture.', parent: 'reverse_abrasion' },
+        { id: 'distant_surgebinding_abrasion', name: 'Distant Surgebinding', type: 'Passive', desc: 'Use your surges and their talents as though your reach is 20 feet.', parent: 'stormlight_reclamation_abrasion' },
+        { id: 'smooth_operator', name: 'Smooth Operator', type: 'Passive', desc: 'While you have Investiture, you are infused with Abrasion and it costs you 1 fewer focus to Skate.', parent: 'distant_surgebinding_abrasion' }
+      ],
+      division: [
+        { id: 'bodily_decay', name: 'Bodily Decay', type: 'Special', desc: 'When you hit with a Division attack, you can spend an Opportunity to cause one target of that attack to suffer an injury.' },
+        { id: 'igniting_division', name: 'Igniting Division', type: 'Special', desc: 'When you use Division, spend 1 or more Investiture to light the target\'s space on fire, dealing ongoing damage equal to your Division modifier.', parent: 'bodily_decay' },
+        { id: 'gout_of_flame', name: 'Gout of Flame', type: '2 Actions', desc: 'Spend 3 Investiture to make a Division attack vs. Physical against each target in an area one size larger than normal.', parent: 'igniting_division' },
+        { id: 'devastating_division', name: 'Devastating Division', type: 'Passive', desc: 'When you roll damage for Division, roll an additional damage die.', parent: 'gout_of_flame' },
+        { id: 'eroding_escape', name: 'Eroding Escape', type: '1 Action', desc: 'Spend 1 or more Investiture to end that many effects inflicting the Restrained or Immobilized condition.' },
+        { id: 'spark_sending', name: 'Spark Sending', type: 'Passive', desc: 'When there\'s a solid surface between you and target, use Division as though your reach is 20 feet.', parent: 'eroding_escape' },
+        { id: 'inescapable_spark', name: 'Inescapable Spark', type: 'Passive', desc: 'Your Spark Sending now extends to your spren bond range. You don\'t need line of effect when you can sense your target, and they can\'t Brace against your Division.', parent: 'spark_sending' },
+        { id: 'unleashed_entropy', name: 'Unleashed Entropy', type: 'Passive', desc: 'It costs you one fewer action to use the Division skill. Your Division Under Pressure DC is reduced by 5.', parent: 'inescapable_spark' }
+      ],
+      progression: [
+        { id: 'injury_regrowth', name: 'Injury Regrowth', type: 'Special', desc: 'Spend 2 Investiture to cause a target to recover from a temporary injury, or spend 3 Investiture to recover from a permanent one.' },
+        { id: 'swift_regeneration', name: 'Swift Regeneration', type: 'Passive', desc: 'When you Regenerate, recover health equal to 1d6 + your Progression modifier. While you have Investiture, you and your Regrowth targets can add your Progression modifier to injury rolls.', parent: 'injury_regrowth' },
+        { id: 'extended_regrowth', name: 'Extended Regrowth', type: 'Passive', desc: 'Your Regrowth infusions only expend 1 Investiture per rounds equal to your ranks in Progression.', parent: 'swift_regeneration' },
+        { id: 'from_the_brink', name: 'From the Brink', type: 'Special', desc: 'Spend 3 Investiture to restore life to a willing character who died within the last minute.', parent: 'extended_regrowth' },
+        { id: 'explosive_growth', name: 'Explosive Growth', type: '1 Action', desc: 'Spend 1 Investiture to explosively grow plants in an area. Make a Progression attack vs. Physical of each character of your choice, rolling 2d4 impact or keen damage.' },
+        { id: 'overgrowth', name: 'Overgrowth', type: 'Special', desc: 'When you infuse Growth into a plant, test Progression (DC 15) to cause it to grow much larger and stronger than its species\' normal limits.', parent: 'explosive_growth' },
+        { id: 'reliable_progression', name: 'Reliable Progression', type: 'Passive', desc: 'When you roll a Progression die, make the result equal your ranks in Progression.', parent: 'overgrowth' },
+        { id: 'font_of_life', name: 'Font of Life', type: 'Passive', desc: 'It costs you one fewer action to use Progression and its talents.', parent: 'reliable_progression' }
+      ],
+      transformation: [
+        { id: 'soulcast_defense', name: 'Soulcast Defense', type: 'Reaction', desc: 'Before you or an ally is hit by a projectile, spend 1 Investiture to test Transformation (DC equals triggering attack). On failure, the projectile grazes. On success, the projectile misses and becomes an Essence.' },
+        { id: 'soulcast_parry', name: 'Soulcast Parry', type: 'Passive', desc: 'You can use Soulcast Defense on melee weapon attacks.', parent: 'soulcast_defense' },
+        { id: 'distant_surgebinding_transformation', name: 'Distant Surgebinding', type: 'Passive', desc: 'Use your surges and their talents as though your reach is 20 feet.', parent: 'soulcast_parry' },
+        { id: 'persistent_transformation', name: 'Persistent Transformation', type: 'Passive', desc: 'When transforming non-living objects, your max DC is 15. Also, you can reattempt Soulcasting, but on success, must spend 1 additional Investiture per recent Soulcasting failure.', parent: 'distant_surgebinding_transformation' },
+        { id: 'living_soulcasting', name: 'Living Soulcasting', type: '2 Actions', desc: 'Spend 1 Investiture and make a melee Transformation attack vs. Spiritual of a living organism, rolling 3d4 spirit damage. The target dies if reduced to 0 health.' },
+        { id: 'bloodcasting', name: 'Bloodcasting', type: '2 Actions', desc: 'Spend 1 Investiture and test Transformation (DC 15) to cleanse all poison from the target and reduce one injury\'s recovery time by 5 days.', parent: 'living_soulcasting' },
+        { id: 'flamecasting', name: 'Flamecasting', type: 'Passive', desc: 'You gain "Flame" as a sixth category following "Clear Air" (DC 30 to transform stone to flame). When Soulcasting flames, attack each character within 5 feet using Transformation vs. Physical, rolling 2d4 energy damage.', parent: 'bloodcasting' },
+        { id: 'expansive_transmuter', name: 'Expansive Transmuter', type: 'Passive', desc: 'Soulcasting non-living material costs 2 fewer Investiture.', parent: 'flamecasting' }
+      ],
+      transportation: [
+        { id: 'cognitive_farsight', name: 'Cognitive Farsight', type: 'Passive', desc: 'You can spot things in the Cognitive Realm up to a distance equal to 3 x your spren bond range. While you have Investiture, you can identify north and the direction to the nearest settlement.' },
+        { id: 'cognitive_vision', name: 'Cognitive Vision', type: 'Passive', desc: 'When you use Transportation to look into the Cognitive Realm, you can learn an enemy\'s intent by testing Transportation vs. Cognitive, and you can learn about your immediate environment.', parent: 'cognitive_farsight' },
+        { id: 'shared_transportation', name: 'Shared Transportation', type: 'Special', desc: 'When you transport yourself, spend 1 Investiture or more to bring that many additional characters with you.', parent: 'cognitive_vision' },
+        { id: 'elsegate', name: 'Elsegate', type: 'Special', desc: 'Transport yourself and up to ten companions to an Oathgate or permanent perpendicularity you\'ve visited before.', parent: 'shared_transportation' },
+        { id: 'realmic_evasion', name: 'Realmic Evasion', type: 'Reaction', desc: 'Before you\'re hit by an attack, spend 1 Investiture and test Transportation (DC equals triggering attack). On failure, the attack grazes. On success, the attack misses.' },
+        { id: 'realmic_step', name: 'Realmic Step', type: '1 Action', desc: 'Test Transportation (DC 15) and spend 2 Investiture to transport yourself to a space within spren bond range.', parent: 'realmic_evasion' },
+        { id: 'elsecalling', name: 'Elsecalling', type: '1 Action', desc: 'Spend 1 Investiture to transport yourself from the Physical to the Cognitive Realm, or test Transportation (DC 20) and spend 2 Investiture to transport from the Cognitive to the Physical Realm.', parent: 'realmic_step' },
+        { id: 'realmwalker', name: 'Realmwalker', type: 'Passive', desc: 'When you test Transportation for a talent, you automatically succeed.', parent: 'elsecalling' }
+      ],
+      illumination: [
+        { id: 'distracting_illusion', name: 'Distracting Illusion', type: '1 Action', desc: 'Spend 1 Investiture to Lightweave an illusion of yourself or an ally. Until an attack misses the target, attacks against them gain a disadvantage and can\'t graze.' },
+        { id: 'disorienting_flash', name: 'Disorienting Flash', type: '2 Actions', desc: 'Spend 1 Investiture to project light in an area, testing Illumination vs. Cognitive of each character to make them Disoriented.', parent: 'distracting_illusion' },
+        { id: 'spiritual_illumination', name: 'Spiritual Illumination', type: '1 Action', desc: 'Spend 2 Investiture to cause an ally to become Determined and Focused.', parent: 'disorienting_flash' },
+        { id: 'painful_truth', name: 'Painful Truth', type: '1 Action', desc: 'Spend 2 Investiture and test Illumination vs. Spiritual of a target. On success, they are Slowed and must Move away on their next turn or spend focus to avoid doing so.', parent: 'spiritual_illumination' },
+        { id: 'lingering_lightweavings', name: 'Lingering Lightweavings', type: 'Special', desc: 'You can infuse an illusion in a sphere. The illusion moves with the sphere, expending 1 Investiture per rounds equal to your ranks in Illumination.' },
+        { id: 'stormlight_reclamation_illumination', name: 'Stormlight Reclamation', type: 'Free Action', desc: 'End Illumination infusions within spren bond range and recover their remaining Investiture.', parent: 'lingering_lightweavings' },
+        { id: 'multiplicative_lightweaving', name: 'Multiplicative Lightweaving', type: 'Passive', desc: 'You can Lightweave additional illusions, up to your ranks in Illumination, with no additional Investiture.', parent: 'stormlight_reclamation_illumination' },
+        { id: 'endless_illusions', name: 'Endless Illusions', type: 'Passive', desc: 'You can maintain illusions indefinitely. While you have Investiture, Illumination infusions in your spren bond range don\'t expend Investiture.', parent: 'multiplicative_lightweaving' }
+      ],
+      cohesion: [
+        { id: 'stone_spear', name: 'Stone Spear', type: '1 Action', desc: 'Spend 1 Investiture to make a ranged Cohesion attack vs. Physical of a target within 60 feet, rolling 2d4 impact damage.' },
+        { id: 'sinkhole', name: 'Sinkhole', type: '1 Action', desc: 'Spend 1 Investiture and test Cohesion vs. Cognitive of chosen targets on stone ground. On success, the target sinks into the ground and is Immobilized.', parent: 'stone_spear' },
+        { id: 'through_the_stone', name: 'Through the Stone', type: 'Passive', desc: 'Use your surges and their talents as though your reach is 20 feet.', parent: 'sinkhole' },
+        { id: 'unbound_cohesion', name: 'Unbound Cohesion', type: 'Passive', desc: 'Use Cohesion on any solid material that isn\'t alive, Invested, or infused with Stormlight.', parent: 'through_the_stone' },
+        { id: 'memories_of_stone', name: 'Memories of Stone', type: 'Special', desc: 'Spend 1 Investiture to communicate with stone you\'re touching. If this requires interpretation, test Cohesion (DC determined by the GM).' },
+        { id: 'tunneling', name: 'Tunneling', type: 'Special', desc: 'Spend 1 Investiture to move through stone as if through difficult terrain, leaving a 5-foot tunnel behind you.', parent: 'memories_of_stone' },
+        { id: 'true_stoneshaping', name: 'True Stoneshaping', type: 'Passive', desc: 'Intricately and extensively shape stone without using additional actions or time.', parent: 'tunneling' },
+        { id: 'flowing_earth', name: 'Flowing Earth', type: 'Special', desc: 'After using Cohesion, shape the stone beneath your feet, pushing yourself in any direction up to 5 feet x your ranks in Cohesion.', parent: 'true_stoneshaping' }
+      ],
+      tension: [
+        { id: 'tension_parry', name: 'Tension Parry', type: 'Reaction', desc: 'Before you or an ally is hit or grazed by an attack, spend Investiture to infuse the target\'s clothing, increasing their Physical defense by 2 and potentially cause the attack to miss.' },
+        { id: 'rigged_weaponry', name: 'Rigged Weaponry', type: 'Special', desc: 'Spend 1 Investiture to increase the reach of your melee weapon by 10 feet. When you hit with a melee attack, spend an Opportunity or 2 focus to infuse Tension into an object the target is holding.', parent: 'tension_parry' },
+        { id: 'cloth_mastery', name: 'Cloth Mastery', type: 'Passive', desc: 'Use Tension to instantly create intricate and complex objects.', parent: 'rigged_weaponry' },
+        { id: 'fine_control', name: 'Fine Control', type: '2 Actions', desc: 'Spend Investiture to infuse an object you can control with an Opportunity while touching it. It can move up to 25 feet along surfaces, perform tasks, and make attacks using your Tension.', parent: 'cloth_mastery' },
+        { id: 'stormlight_reclamation_tension', name: 'Stormlight Reclamation', type: 'Free Action', desc: 'End Tension infusions within reach and recover their remaining Investiture.' },
+        { id: 'extended_tension', name: 'Extended Tension', type: 'Passive', desc: 'Your Tension infusions only expend 1 Investiture per rounds equal to your ranks in Tension. While you have Investiture, you can freely maintain Tension infusions on objects you\'re holding.', parent: 'stormlight_reclamation_tension' },
+        { id: 'surface_tension', name: 'Surface Tension', type: 'Passive', desc: 'Use Tension to increase a liquid\'s surface tension and walk on it like solid ground.', parent: 'extended_tension' },
+        { id: 'clothsmith', name: 'Clothsmith', type: 'Passive', desc: 'Your Hardened Defense effect increases the target\'s Physical defense by 4 instead of 2. When you temporarily create a weapon with Tension, it gains an extra d4 damage die.', parent: 'surface_tension' }
+      ],
+      gravitation: [
+        { id: 'flying_ace', name: 'Flying Ace', type: '1 Action', desc: 'Fly up to your gravitation rate, which permanently increases to 40 feet. You can spend 1 focus to make a melee weapon attack during this flight.' },
+        { id: 'stable_flight', name: 'Stable Flight', type: 'Passive', desc: 'While maintaining a Basic Lashing on yourself, your ranged attacks don\'t gain a disadvantage due to flying or unstable footing.', parent: 'flying_ace' },
+        { id: 'group_flight', name: 'Group Flight', type: 'Passive', desc: 'When you use a Basic Lashing out of combat, infuse additional characters up to your ranks in Gravitation without spending additional Investiture.', parent: 'stable_flight' },
+        { id: 'aerial_squadron', name: 'Aerial Squadron', type: 'Passive', desc: 'You can use your Group Flight in combat.', parent: 'group_flight' },
+        { id: 'gravitational_slam', name: 'Gravitational Slam', type: 'Special', desc: 'Use a Basic Lashing to collide a target with a solid surface, dealing 1d4 impact damage per 10 feet moved. The target can Avoid Danger to halve damage.' },
+        { id: 'multiple_lashings', name: 'Multiple Lashings', type: 'Passive', desc: 'When you move an unwilling character with Gravitation, you can infuse Investiture up to your ranks in Gravitation to prolong the effect.', parent: 'gravitational_slam' },
+        { id: 'lashing_shot', name: 'Lashing Shot', type: '3 Actions', desc: 'Propel an object at a target, spending Investiture equal to distance divided by gravitation rate. Make a ranged Gravitation attack vs. Physical, rolling 2d4 impact damage.', parent: 'multiple_lashings' },
+        { id: 'master_of_the_skies', name: 'Master of the Skies', type: 'Passive', desc: 'While you have Investiture, you\'re always infused with Gravitation.', parent: 'lashing_shot' }
+      ],
+      adhesion: [
+        { id: 'placeholder_adhesion', name: 'Adhesion Surges Pending', type: 'System', desc: 'Surge of Adhesion talents await discovery.' }
+      ]
+    };
+
+    const skills = [
+      { id: "ath", name: "Athletics", attr: "str" }, { id: "hw", name: "Heavy Weaponry", attr: "str" },
+      { id: "agi", name: "Agility", attr: "spd" }, { id: "lw", name: "Light Weaponry", attr: "spd" },
+      { id: "st", name: "Stealth", attr: "spd" }, { id: "th", name: "Thievery", attr: "spd" },
+      { id: "cr", name: "Crafting", attr: "int" }, { id: "ded", name: "Deduction", attr: "int" },
+      { id: "lore", name: "Lore", attr: "int" }, { id: "med", name: "Medicine", attr: "int" },
+      { id: "dis", name: "Discipline", attr: "wil" }, { id: "intm", name: "Intimidation", attr: "wil" },
+      { id: "ins", name: "Insight", attr: "awa" }, { id: "perc", name: "Perception", attr: "awa" },
+      { id: "surv", name: "Survival", attr: "awa" }, { id: "decp", name: "Deception", attr: "pre" },
+      { id: "lead", name: "Leadership", attr: "pre" }, { id: "pers", name: "Persuasion", attr: "pre" }
+    ];
+
+    const allSurges = [
+      { id: "abrasion", name: "Abrasion", attr: "spd" },
+      { id: "adhesion", name: "Adhesion", attr: "pre" },
+      { id: "cohesion", name: "Cohesion", attr: "wil" },
+      { id: "division", name: "Division", attr: "int" },
+      { id: "gravitation", name: "Gravitation", attr: "awa" },
+      { id: "illumination", name: "Illumination", attr: "pre" },
+      { id: "progression", name: "Progression", attr: "awa" },
+      { id: "tension", name: "Tension", attr: "str" },
+      { id: "transformation", name: "Transformation", attr: "wil" },
+      { id: "transportation", name: "Transportation", attr: "int" }
+    ];
+
+    const skillRanks = {};
+    const chosenTalents = {};
+    const unlockedTalentIds = new Set();
+
+    function addUnlockedTalent(id) {
+      if (!unlockedTalentIds.has(id)) {
+        unlockedTalentIds.add(id);
+        // First Ideal side effects are handled by initSkills() during UI updates
+      }
+    }
+
+    function removeUnlockedTalent(id) {
+      if (unlockedTalentIds.has(id)) {
+        unlockedTalentIds.delete(id);
+      }
+    }
+
+    function initSkills() {
+      const container = document.getElementById('skillGrid');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const activeSurgeIds = new Set();
+      for (const orderKey in radiantPathsData) {
+        if (unlockedTalentIds.has(`first_ideal_${orderKey}`)) {
+          radiantPathsData[orderKey].surges.forEach(s => activeSurgeIds.add(s));
+        }
+      }
+
+      const displaySkills = [...skills];
+      allSurges.forEach(surge => {
+        if (activeSurgeIds.has(surge.id)) {
+          displaySkills.push(surge);
+        }
+      });
+
+      displaySkills.forEach(s => {
+        if (!skillRanks[s.id]) skillRanks[s.id] = 0;
+        const div = document.createElement('div');
+        div.className = "flex flex-col border-b border-slate-800/50 pb-2";
+
+        const isSurge = allSurges.some(surgeObj => surgeObj.id === s.id);
+        const titleColor = isSurge ? "text-sky-300" : "text-slate-300";
+        const modColor = isSurge ? "text-sky-400" : "text-purple-400";
+
+        div.innerHTML = `
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[11px] font-semibold ${titleColor} uppercase">${s.name} ${isSurge ? '<span class="text-[8px] text-sky-500 ml-1">(Surge)</span>' : ''}</span>
+                        <span id="mod-${s.id}" class="${modColor} font-bold font-mono text-sm">+0</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <div class="flex" id="dots-${s.id}"></div>
+                        <span class="text-[9px] text-slate-500 uppercase ml-auto">${s.attr}</span>
+                    </div>
+                `;
+        container.appendChild(div);
+        renderDots(s.id);
+      });
+    }
+
+    function renderDots(skillId) {
+      const dotContainer = document.getElementById(`dots-${skillId}`);
+      if (!dotContainer) return;
+      dotContainer.innerHTML = '';
+      const isSurge = allSurges.some(s => s.id === skillId);
+
+      for (let i = 1; i <= 5; i++) {
+        const dot = document.createElement('div');
+        const activeClass = isSurge ? 'active-surge' : 'active';
+        dot.className = `rank-dot ${i <= skillRanks[skillId] ? activeClass : ''}`;
+        dot.onclick = () => {
+          skillRanks[skillId] = (skillRanks[skillId] === i) ? i - 1 : i;
+          renderDots(skillId);
+          updateUI();
+          updateSpecialtyTree();
+          updateRadiantTrees();
+        };
+        dotContainer.appendChild(dot);
+      }
+    }
+
+    function adjustResource(id, delta) {
+      const el = document.getElementById(id);
+      if (!el) return;
+
+      if (id === 'curI' && document.getElementById('radiantOrder').value === '') return;
+
+      el.value = (parseInt(el.value) || 0) + delta;
+      updateUI();
+    }
+
+    function updateSpecialties() {
+      const pathKey = document.getElementById('heroicPath').value;
+      const specSelect = document.getElementById('specialty');
+      const talent1Name = document.getElementById('talent-1');
+      const talent1Desc = document.getElementById('desc-1');
+
+      specSelect.innerHTML = '<option value="">Select Specialty...</option>';
+
+      if (pathKey && heroicPathsData[pathKey]) {
+        heroicPathsData[pathKey].specialties.forEach(spec => {
+          const opt = document.createElement('option');
+          opt.value = spec.toLowerCase().replace(/\s+/g, '_');
+          opt.textContent = spec;
+          specSelect.appendChild(opt);
+        });
+        talent1Name.value = heroicPathsData[pathKey].startingTalent;
+        talent1Desc.value = heroicPathsData[pathKey].startingTalentDesc;
+
+        document.getElementById('talent-1').setAttribute('data-talent-id', `starting_${pathKey}`);
+      } else {
+        talent1Name.value = '';
+        talent1Desc.value = '';
+        document.getElementById('talent-1').removeAttribute('data-talent-id');
+      }
+      updateSpecialtyTree();
+      updateTalentSlots();
+    }
+
+    function updateSpecialtyTree() {
+      const pathKey = document.getElementById('heroicPath').value;
+      const specKey = document.getElementById('specialty').value;
+      const view = document.getElementById('view-heroic');
+
+      if (!pathKey || !specKey || !heroicPathsData[pathKey].talentTrees[specKey] || heroicPathsData[pathKey].talentTrees[specKey].length === 0) {
+        if (view) view.innerHTML = '';
+        return;
+      }
+
+      if (view) {
+        view.innerHTML = '';
+        const tree = heroicPathsData[pathKey].talentTrees[specKey];
+        renderTreeNodes(tree, view, false);
+      }
+
+      const tabHeroic = document.getElementById('tab-heroic');
+      if (tabHeroic && tabHeroic.classList.contains('active')) {
+        const emptyView = document.getElementById('emptyTreeView');
+        if (emptyView && view && view.children.length > 0) emptyView.classList.add('hidden');
+      }
+    }
+
+    function updateRadiantTrees() {
+      const orderKey = document.getElementById('radiantOrder').value;
+      const sprenView = document.getElementById('view-spren');
+      const surge1View = document.getElementById('view-surge1');
+      const surge2View = document.getElementById('view-surge2');
+
+      const tabSpren = document.getElementById('tab-spren');
+      const tabSurge1 = document.getElementById('tab-surge1');
+      const tabSurge2 = document.getElementById('tab-surge2');
+
+      if (!orderKey || !radiantPathsData[orderKey]) {
+        [tabSpren, tabSurge1, tabSurge2].forEach(t => { if (t) t.classList.add('hidden'); });
+        [sprenView, surge1View, surge2View].forEach(v => { if (v) v.innerHTML = ''; });
+        updateUI();
+        return;
+      }
+
+      const rData = radiantPathsData[orderKey];
+
+      if (tabSpren) {
+        tabSpren.classList.remove('hidden');
+        tabSpren.innerText = `${rData.spren} Bond`;
+      }
+      if (sprenView) {
+        sprenView.innerHTML = '';
+        const firstIdeal = {
+          id: `first_ideal_${orderKey}`,
+          name: rData.startingTalent,
+          type: rData.startingTalentType,
+          desc: rData.startingTalentDesc,
+          prereq: { level: 2 }
+        };
+        renderTreeNodes([firstIdeal, ...rData.tree], sprenView, true);
+      }
+
+      rData.surges.forEach((surgeKey, idx) => {
+        const tab = idx === 0 ? tabSurge1 : tabSurge2;
+        const view = idx === 0 ? surge1View : surge2View;
+
+        if (tab) {
+          tab.classList.remove('hidden');
+          tab.innerText = surgeKey.charAt(0).toUpperCase() + surgeKey.slice(1);
+        }
+        if (view) {
+          view.innerHTML = '';
+          const surgeTree = surgesData[surgeKey] || [];
+          renderTreeNodes(surgeTree, view, true, `first_ideal_${orderKey}`);
+        }
+      });
+
+      updateUI();
+    }
+
+    function renderTreeNodes(tree, container, isRadiant = false, basePrereqId = null) {
+      const currentLevel = parseInt(document.getElementById('level').value) || 1;
+
+      tree.forEach(talent => {
+        const card = document.createElement('div');
+        const isUnlocked = unlockedTalentIds.has(talent.id);
+
+        let isLocked = false;
+        let prereqLabel = "";
+
+        if (talent.prereq && talent.prereq.level) {
+          if (currentLevel < talent.prereq.level) {
+            isLocked = true;
+            prereqLabel = `Requires Level ${talent.prereq.level}+`;
+          }
+        }
+
+        if (talent.prereq && talent.prereq.skill) {
+          const currentRank = skillRanks[talent.prereq.skill] || 0;
+          if (currentRank < talent.prereq.rank) {
+            isLocked = true;
+            const skillObj = skills.find(s => s.id === talent.prereq.skill);
+            const skillName = skillObj ? skillObj.name : talent.prereq.skill;
+            const addition = `Requires ${skillName} ${talent.prereq.rank}+`;
+            prereqLabel = prereqLabel ? `${prereqLabel} & ${addition}` : addition;
+          }
+        }
+
+        if (talent.parent && !unlockedTalentIds.has(talent.parent)) {
+          isLocked = true;
+          const parentObj = getTalentById(talent.parent);
+          const parentName = parentObj ? parentObj.name : "Parent Talent";
+          const addition = `Requires ${parentName}`;
+          prereqLabel = prereqLabel ? `${prereqLabel} & ${addition}` : addition;
+        }
+
+        if (basePrereqId && !talent.parent && !talent.prereq) {
+          if (!unlockedTalentIds.has(basePrereqId)) {
+            isLocked = true;
+            const pObj = getTalentById(basePrereqId);
+            const pName = pObj ? pObj.name : "First Ideal";
+            const addition = `Requires ${pName}`;
+            prereqLabel = prereqLabel ? `${prereqLabel} & ${addition}` : addition;
+          }
+        }
+
+        card.className = `talent-card ${isRadiant ? 'radiant-card' : ''} ${isUnlocked ? 'selected' : ''} ${isLocked ? 'locked' : ''}`;
+        card.innerHTML = `
+                    <div class="talent-type-icon">${talent.type}</div>
+                    <h4 class="text-xs font-bold uppercase mb-1 ${isLocked ? 'text-slate-500' : (isRadiant ? 'text-sky-400' : 'text-purple-400')}">${talent.name}</h4>
+                    ${prereqLabel ? `<div class="text-[9px] font-bold text-red-500/70 mb-1 uppercase">${prereqLabel}</div>` : ''}
+                    <p class="text-[10px] text-slate-400 leading-tight line-clamp-3">${talent.desc}</p>
+                `;
+
+        card.onclick = () => {
+          if (isLocked) return;
+          toggleTalent(talent, isRadiant);
+        };
+
+        container.appendChild(card);
+      });
+    }
+
+    function getAvailableTalents() {
+      const currentLevel = parseInt(document.getElementById('level').value) || 1;
+      const available = new Map();
+
+      for (const pathKey in heroicPathsData) {
+        for (const specKey in heroicPathsData[pathKey].talentTrees) {
+          const tree = heroicPathsData[pathKey].talentTrees[specKey];
+          tree.forEach(t => {
+            if (unlockedTalentIds.has(t.id)) return;
+            if (t.prereq && t.prereq.skill) {
+              const rank = skillRanks[t.prereq.skill] || 0;
+              if (rank < t.prereq.rank) return;
+            }
+            if (t.parent && !unlockedTalentIds.has(t.parent)) return;
+
+            if (!available.has(t.id)) {
+              available.set(t.id, { ...t, sourcePath: `${pathKey.charAt(0).toUpperCase() + pathKey.slice(1)} - ${specKey.charAt(0).toUpperCase() + specKey.slice(1)}` });
+            }
+          });
+        }
+      }
+
+      for (const orderKey in radiantPathsData) {
+        const rData = radiantPathsData[orderKey];
+        const firstId = `first_ideal_${orderKey}`;
+        if (currentLevel >= 2 && !unlockedTalentIds.has(firstId)) {
+          available.set(firstId, {
+            id: firstId, name: rData.startingTalent, desc: rData.startingTalentDesc, type: rData.startingTalentType,
+            sourcePath: `${orderKey.charAt(0).toUpperCase() + orderKey.slice(1)}`
+          });
+        }
+
+        rData.tree.forEach(t => {
+          if (unlockedTalentIds.has(t.id)) return;
+          if (t.prereq && t.prereq.level && currentLevel < t.prereq.level) return;
+          if (t.parent && !unlockedTalentIds.has(t.parent)) return;
+          if (!available.has(t.id)) {
+            available.set(t.id, { ...t, sourcePath: `${orderKey.charAt(0).toUpperCase() + orderKey.slice(1)}` });
+          }
+        });
+
+        rData.surges.forEach(surgeKey => {
+          const sTree = surgesData[surgeKey] || [];
+          sTree.forEach(t => {
+            if (unlockedTalentIds.has(t.id)) return;
+            if (t.prereq && t.prereq.skill) {
+              const rank = skillRanks[t.prereq.skill] || 0;
+              if (rank < t.prereq.rank) return;
+            }
+            if (t.parent && !unlockedTalentIds.has(t.parent)) return;
+            if (!t.parent && !t.prereq && !unlockedTalentIds.has(firstId)) return;
+
+            if (!available.has(t.id)) {
+              available.set(t.id, { ...t, sourcePath: `Surge: ${surgeKey.charAt(0).toUpperCase() + surgeKey.slice(1)}` });
+            }
+          });
+        });
+      }
+
+      return Array.from(available.values());
+    }
+
+    function openTalentSearch(key) {
+      const dropdown = document.getElementById(`dropdown-${key}`);
+      if (dropdown) {
+        dropdown.classList.remove('hidden');
+        filterTalentSearch(key, document.getElementById(`talent-${key}`).value);
+      }
+    }
+
+    function closeTalentSearch(key) {
+      const dropdown = document.getElementById(`dropdown-${key}`);
+      if (dropdown) dropdown.classList.add('hidden');
+    }
+
+    function filterTalentSearch(key, query) {
+      const dropdown = document.getElementById(`dropdown-${key}`);
+      if (!dropdown) return;
+      dropdown.innerHTML = '';
+
+      const available = getAvailableTalents();
+      const filtered = available.filter(t =>
+        (t.name.toLowerCase().includes(query.toLowerCase()) || t.desc.toLowerCase().includes(query.toLowerCase()))
+      );
+
+      if (filtered.length === 0) {
+        dropdown.innerHTML = '<div class="p-3 text-xs text-slate-400 italic">No eligible talents found. Ensure you meet prerequisites!</div>';
+        return;
+      }
+
+      filtered.forEach(t => {
+        const div = document.createElement('div');
+        const isRadiant = t.sourcePath.includes('Surge') || Object.keys(radiantPathsData).some(k => t.sourcePath.toLowerCase().includes(k));
+        div.className = `p-2 border-b border-slate-700 cursor-pointer transition-colors ${isRadiant ? 'hover:bg-sky-900/60' : 'hover:bg-purple-900/60'}`;
+        div.innerHTML = `
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-bold ${isRadiant ? 'text-sky-400' : 'text-purple-400'} text-xs uppercase">${t.name}</span>
+                        <span class="text-[9px] text-emerald-400 italic">${t.sourcePath}</span>
+                    </div>
+                    <div class="text-[10px] text-slate-400 line-clamp-2">${t.desc}</div>
+                `;
+        div.onmousedown = () => selectFromDropdown(key, t);
+        dropdown.appendChild(div);
+      });
+    }
+
+    function selectFromDropdown(key, talent) {
+      const oldId = chosenTalents[key]?.id;
+      if (oldId) removeUnlockedTalent(oldId);
+
+      chosenTalents[key] = { id: talent.id, name: talent.name, desc: talent.desc };
+      addUnlockedTalent(talent.id);
+
+      const input = document.getElementById(`talent-${key}`);
+      if (input) input.value = talent.name;
+
+      const textarea = document.getElementById(`desc-${key}`);
+      if (textarea) {
+        textarea.value = talent.desc;
+        textarea.style.height = '';
+        textarea.style.height = textarea.scrollHeight + 'px';
+      }
+
+      closeTalentSearch(key);
+      enforceTalentDependencies();
+      updateTalentSlots();
+      updateSpecialtyTree();
+      updateRadiantTrees();
+      initSkills();
+      updateUI();
+    }
+
+    function toggleTalent(talent, isRadiant) {
+      if (unlockedTalentIds.has(talent.id)) {
+        for (let key in chosenTalents) {
+          if (chosenTalents[key].id === talent.id) {
+            clearTalentSlot(key);
+            break;
+          }
+        }
+      } else {
+        const lv = parseInt(document.getElementById('level').value) || 1;
+        const isHuman = document.getElementById('ancestry').value.toLowerCase().includes('human');
+        const slots = [];
+        for (let i = 2; i <= lv; i++) slots.push(`standard-${i}`);
+        if (isHuman) [1, 6, 11, 16, 21].forEach(m => { if (lv >= m) slots.push(`human-${m}`); });
+
+        let foundSlot = null;
+        for (let slotKey of slots) {
+          if (!chosenTalents[slotKey] || (!chosenTalents[slotKey].id && !chosenTalents[slotKey].name)) {
+            foundSlot = slotKey;
+            break;
+          }
+        }
+
+        if (!foundSlot) {
+          const msg = document.createElement('div');
+          msg.className = `fixed bottom-10 right-10 ${isRadiant ? 'bg-sky-900 border-sky-500' : 'bg-purple-900 border-purple-500'} border text-white p-4 rounded shadow-2xl z-50 animate-bounce`;
+          msg.innerText = "No available talent slots!";
+          document.body.appendChild(msg);
+          setTimeout(() => msg.remove(), 3000);
+          return;
+        }
+
+        addUnlockedTalent(talent.id);
+        chosenTalents[foundSlot] = { id: talent.id, name: talent.name, desc: talent.desc, isRadiant: isRadiant };
+      }
+      enforceTalentDependencies();
+      updateSpecialtyTree();
+      updateRadiantTrees();
+      updateTalentSlots();
+      initSkills();
+      updateUI();
+    }
+
+    function clearTalentSlot(key) {
+      const oldId = chosenTalents[key]?.id;
+      if (oldId) removeUnlockedTalent(oldId);
+
+      chosenTalents[key] = { id: null, name: '', desc: '', isRadiant: false };
+
+      const input = document.getElementById(`talent-${key}`);
+      if (input) input.value = '';
+
+      const desc = document.getElementById(`desc-${key}`);
+      if (desc) {
+        desc.value = '';
+        desc.style.height = 'auto';
+      }
+
+      enforceTalentDependencies();
+      updateTalentSlots();
+      updateSpecialtyTree();
+      updateRadiantTrees();
+      initSkills();
+      updateUI();
+    }
+
+    function enforceTalentDependencies() {
+      let changed = false;
+
+      const allTrees = [];
+      for (const p in heroicPathsData) {
+        for (const s in heroicPathsData[p].talentTrees) {
+          allTrees.push(...heroicPathsData[p].talentTrees[s]);
+        }
+      }
+      for (const p in radiantPathsData) {
+        allTrees.push({ id: `first_ideal_${p}`, name: radiantPathsData[p].startingTalent });
+        allTrees.push(...radiantPathsData[p].tree);
+      }
+      for (const s in surgesData) {
+        allTrees.push(...surgesData[s]);
+      }
+
+      const currentIdsInSlots = new Set();
+      for (let k in chosenTalents) if (chosenTalents[k].id) currentIdsInSlots.add(chosenTalents[k].id);
+
+      for (let key in chosenTalents) {
+        const t = chosenTalents[key];
+        if (t.id) {
+          const data = allTrees.find(x => x.id === t.id);
+          if (data && data.parent) {
+            if (!currentIdsInSlots.has(data.parent)) {
+              removeUnlockedTalent(t.id);
+              chosenTalents[key] = { id: null, name: '', desc: '', isRadiant: false };
+              changed = true;
+            }
+          }
+
+          if (data && !data.parent && !data.prereq) {
+            let isSurge = false;
+            let relatedOrder = null;
+            for (const s in surgesData) {
+              if (surgesData[s].find(x => x.id === t.id)) {
+                isSurge = true;
+                const activeOrder = document.getElementById('radiantOrder').value;
+                if (activeOrder && radiantPathsData[activeOrder].surges.includes(s)) {
+                  relatedOrder = activeOrder;
+                }
+              }
+            }
+
+            if (isSurge && relatedOrder) {
+              const firstId = `first_ideal_${relatedOrder}`;
+              if (!currentIdsInSlots.has(firstId)) {
+                removeUnlockedTalent(t.id);
+                chosenTalents[key] = { id: null, name: '', desc: '', isRadiant: false };
+                changed = true;
+              }
+            }
+          }
+        }
+      }
+
+      if (changed) enforceTalentDependencies();
+    }
+
+    function updateTalentSlots() {
+      const lv = parseInt(document.getElementById('level').value) || 1;
+      const container = document.getElementById('additionalTalents');
+      const isHuman = document.getElementById('ancestry').value.toLowerCase().includes('human');
+      container.innerHTML = '';
+
+      const currentIdsInSlots = new Set();
+      for (let i = 2; i <= lv; i++) {
+        const key = `standard-${i}`;
+        renderTalentSlot(container, key, `Level ${i} Talent Choice`, "Any Path/Surge Tree", chosenTalents);
+        if (chosenTalents[key].id) currentIdsInSlots.add(chosenTalents[key].id);
+      }
+
+      if (isHuman) {
+        [1, 6, 11, 16, 21].forEach(m => {
+          if (lv >= m) {
+            const key = `human-${m}`;
+            renderTalentSlot(container, key, `Human Bonus Talent (Level ${m})`, "Any Path/Surge Tree", chosenTalents, true);
+            if (chosenTalents[key].id) currentIdsInSlots.add(chosenTalents[key].id);
+          }
+        });
+      }
+
+      const idsToDelete = [];
+      unlockedTalentIds.forEach(id => { if (!currentIdsInSlots.has(id)) idsToDelete.push(id); });
+      idsToDelete.forEach(id => removeUnlockedTalent(id));
+    }
+
+    function renderTalentSlot(container, key, title, subtitle, dataStore, isBonus = false) {
+      if (!dataStore[key]) dataStore[key] = { id: null, name: '', desc: '', isRadiant: false };
+      const div = document.createElement('div');
+
+      let isRadiant = dataStore[key].isRadiant;
+      if (!isRadiant && dataStore[key].id) {
+        isRadiant = Object.values(surgesData).some(tree => tree.some(t => t.id === dataStore[key].id)) ||
+          Object.values(radiantPathsData).some(r => r.tree.some(t => t.id === dataStore[key].id) || dataStore[key].id.startsWith('first_ideal'));
+        dataStore[key].isRadiant = isRadiant;
+      }
+
+      div.className = `talent-slot ${isBonus ? 'bonus-talent' : ''} ${isRadiant ? 'radiant-talent' : ''}`;
+
+      div.innerHTML = `
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-xs font-bold ${isBonus ? 'text-emerald-400' : 'text-slate-400'} uppercase">${title}</span>
+                    <span class="text-[10px] ${isBonus ? 'text-emerald-600' : (isRadiant ? 'text-sky-500' : 'text-purple-500')} italic">${subtitle}</span>
+                </div>
+                <div class="relative flex items-center gap-1">
+                    <div class="relative flex-grow">
+                        <input type="text" id="talent-${key}" placeholder="Search and assign a talent..." autocomplete="off"
+                               class="w-full text-sm font-bold py-1 border-slate-800 bg-transparent outline-none transition-colors pr-8 ${dataStore[key].id ? `cursor-pointer ${isRadiant ? 'text-sky-400 hover:text-sky-300' : 'text-purple-400 hover:text-purple-300'}` : `focus:border-${isRadiant ? 'sky' : 'purple'}-500`}" 
+                               value="${dataStore[key].name}"
+                               ${dataStore[key].id ? `readonly onclick="openTalentModal('${dataStore[key].id}')"` : `onfocus="openTalentSearch('${key}')" oninput="handleManualTalentChange('${key}', this.value)" onblur="setTimeout(() => closeTalentSearch('${key}'), 200)"`}>
+                        <div id="dropdown-${key}" class="absolute top-full z-50 w-full bg-slate-800 border ${isRadiant ? 'border-sky-500' : 'border-purple-500'} hidden max-h-60 overflow-y-auto custom-scrollbar rounded-lg shadow-[0_0_15px_rgba(0,0,0,0.7)] mt-1"></div>
+                    </div>
+                    <button onclick="clearTalentSlot('${key}')" class="p-1 text-slate-500 hover:text-red-400 bg-slate-800/80 rounded transition-colors" title="Clear Slot">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+                <textarea id="desc-${key}" placeholder="Description..." 
+                       class="w-full text-[11px] text-slate-400 italic mt-1 bg-transparent border-none resize-none overflow-hidden" 
+                       rows="2" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'; chosenTalents['${key}'].desc = this.value">${dataStore[key].desc}</textarea>
+            `;
+      container.appendChild(div);
+      const txt = div.querySelector('textarea');
+      if (txt) {
+        txt.style.height = '';
+        txt.style.height = txt.scrollHeight + 'px';
+      }
+    }
+
+    function handleManualTalentChange(key, value) {
+      chosenTalents[key].name = value;
+      if (!value) {
+        const oldId = chosenTalents[key].id;
+        if (oldId) removeUnlockedTalent(oldId);
+        chosenTalents[key].id = null;
+        chosenTalents[key].desc = '';
+        chosenTalents[key].isRadiant = false;
+        const descArea = document.getElementById(`desc-${key}`);
+        if (descArea) descArea.value = '';
+      } else {
+        chosenTalents[key].id = null;
+        chosenTalents[key].isRadiant = false;
+      }
+      filterTalentSearch(key, value);
+      initSkills();
+      updateUI();
+      updateSpecialtyTree();
+      updateRadiantTrees();
+    }
+
+    function getTalentById(id) {
+      for (const pathKey in heroicPathsData) {
+        for (const specKey in heroicPathsData[pathKey].talentTrees) {
+          const found = heroicPathsData[pathKey].talentTrees[specKey].find(t => t.id === id);
+          if (found) return found;
+        }
+      }
+      for (const p in radiantPathsData) {
+        if (`first_ideal_${p}` === id) {
+          return {
+            id: id,
+            name: radiantPathsData[p].startingTalent,
+            type: radiantPathsData[p].startingTalentType,
+            desc: radiantPathsData[p].startingTalentDesc,
+            prereq: { level: 2 }
+          }
+        }
+        const found = radiantPathsData[p].tree.find(t => t.id === id);
+        if (found) return found;
+      }
+      for (const s in surgesData) {
+        const found = surgesData[s].find(t => t.id === id);
+        if (found) return found;
+      }
+      return null;
+    }
+
+    function openTalentModalForStarting() {
+      const pathKey = document.getElementById('heroicPath').value;
+      if (!pathKey || !heroicPathsData[pathKey]) return;
+      const tData = heroicPathsData[pathKey];
+
+      document.getElementById('modalTitle').innerText = tData.startingTalent;
+      document.getElementById('modalType').innerText = tData.startingTalentType || "Special";
+      document.getElementById('modalPrereqsContainer').classList.add('hidden');
+      document.getElementById('modalDesc').innerText = tData.startingTalentDesc;
+
+      document.getElementById('talentModal').classList.remove('hidden');
+    }
+
+    function openTalentModal(id) {
+      const talent = getTalentById(id);
+      if (!talent) return;
+
+      document.getElementById('modalTitle').innerText = talent.name;
+      document.getElementById('modalType').innerText = talent.type;
+
+      const prereqsEl = document.getElementById('modalPrereqs');
+      const prereqsContainer = document.getElementById('modalPrereqsContainer');
+
+      let prereqStr = "";
+      if (talent.prereq && talent.prereq.level) {
+        prereqStr = `Requires Level ${talent.prereq.level}+`;
+      }
+      if (talent.prereq && talent.prereq.skill) {
+        const skillObj = skills.find(s => s.id === talent.prereq.skill);
+        const skillName = skillObj ? skillObj.name : talent.prereq.skill;
+        const addition = `Requires ${skillName} ${talent.prereq.rank}+`;
+        prereqStr = prereqStr ? `${prereqStr} & ${addition}` : addition;
+      }
+      if (talent.parent) {
+        const parentObj = getTalentById(talent.parent);
+        const pName = parentObj ? parentObj.name : "Parent Talent";
+        prereqStr = prereqStr ? `${prereqStr} & ${pName}` : `Requires ${pName}`;
+      }
+
+      if (prereqStr) {
+        prereqsEl.innerText = prereqStr;
+        prereqsContainer.classList.remove('hidden');
+      } else {
+        prereqsContainer.classList.add('hidden');
+      }
+
+      document.getElementById('modalDesc').innerText = talent.desc;
+      document.getElementById('talentModal').classList.remove('hidden');
+    }
+
+    function closeTalentModal() {
+      document.getElementById('talentModal').classList.add('hidden');
+    }
+
+    function switchTreeTab(tabId) {
+      ['heroic', 'spren', 'surge1', 'surge2'].forEach(id => {
+        const view = document.getElementById(`view-${id}`);
+        const tab = document.getElementById(`tab-${id}`);
+        if (view) view.classList.add('hidden');
+        if (tab) tab.classList.remove('active');
+      });
+
+      const activeView = document.getElementById(`view-${tabId}`);
+      const activeTab = document.getElementById(`tab-${tabId}`);
+      if (activeView) activeView.classList.remove('hidden');
+      if (activeTab) activeTab.classList.add('active');
+
+      const emptyView = document.getElementById('emptyTreeView');
+      if (activeView && activeView.children.length > 0) {
+        emptyView.classList.add('hidden');
+      } else {
+        emptyView.classList.remove('hidden');
+      }
+    }
+
+    const getTableValue = (val, table) => {
+      if (val >= 9) return table[9];
+      if (val >= 7) return table[7];
+      if (val >= 5) return table[5];
+      if (val >= 3) return table[3];
+      if (val >= 1) return table[1];
+      return table[0];
+    };
+
+    const tables = {
+      strength: { 0: "100 / 50 lb.", 1: "200 / 100 lb.", 3: "500 / 250 lb.", 5: "1,000 / 500 lb.", 7: "5,000 / 2,500 lb.", 9: "10,000 / 5,000 lb." },
+      recovery: { 0: "1d4", 1: "1d6", 3: "1d8", 5: "1d10", 7: "1d12", 9: "1d20" },
+      senses: { 0: "5 ft.", 1: "10 ft.", 3: "20 ft.", 5: "50 ft.", 7: "100 ft.", 9: "Unhindered" },
+      movement: { 0: "20 ft.", 1: "25 ft.", 3: "30 ft.", 5: "40 ft.", 7: "60 ft.", 9: "80 ft." },
+      connections: { 0: "1 year", 1: "50 days", 3: "5 days", 5: "1 day", 7: "1 hour", 9: "Reputation" }
+    };
+
+    function updateUI() {
+      const lv = parseInt(document.getElementById('level').value) || 1;
+      const stats = {
+        str: parseInt(document.getElementById('str').value) || 0,
+        spd: parseInt(document.getElementById('spd').value) || 0,
+        int: parseInt(document.getElementById('int').value) || 0,
+        wil: parseInt(document.getElementById('wil').value) || 0,
+        awa: parseInt(document.getElementById('awa').value) || 0,
+        pre: parseInt(document.getElementById('pre').value) || 0
+      };
+
+      const tier = Math.ceil(lv / 5);
+
+      const currentIdsInSlots = new Set();
+      for (let key in chosenTalents) if (chosenTalents[key].id) currentIdsInSlots.add(chosenTalents[key].id);
+      unlockedTalentIds.forEach(id => { if (!currentIdsInSlots.has(id)) unlockedTalentIds.delete(id); });
+
+      const hasHardy = unlockedTalentIds.has('hardy');
+      const hasCollected = unlockedTalentIds.has('collected');
+      const hasSurefooted = unlockedTalentIds.has('surefooted');
+      const hasComposed = unlockedTalentIds.has('composed');
+      const hasCustomary = unlockedTalentIds.has('customary_garb');
+      const hasInvested = unlockedTalentIds.has('invested');
+
+      const hardyBonus = hasHardy ? lv : 0;
+      if (document.getElementById('hardyBonusLabel')) document.getElementById('hardyBonusLabel').innerText = hasHardy ? `+ Hardy (${hardyBonus})` : "";
+
+      const composedBonus = hasComposed ? tier : 0;
+      if (document.getElementById('composedBonusLabel')) document.getElementById('composedBonusLabel').innerText = hasComposed ? `+ Composed (${composedBonus})` : "";
+
+      const maxHealth = 10 + stats.str + (Math.max(0, lv - 1) * 5) + hardyBonus;
+      const maxFocus = 2 + stats.wil + composedBonus;
+
+      const radiantOrder = document.getElementById('radiantOrder').value;
+      let hasFirstIdeal = radiantOrder && unlockedTalentIds.has(`first_ideal_${radiantOrder}`);
+
+      const investedBonus = hasInvested ? tier : 0;
+      const maxIEl = document.getElementById('maxI');
+      const curIEl = document.getElementById('curI');
+
+      if (hasFirstIdeal) {
+        let baseI = 2 + Math.max(stats.awa, stats.pre);
+        let totalI = baseI + investedBonus;
+        maxIEl.innerText = totalI;
+        if (document.getElementById('investedBonusLabel')) document.getElementById('investedBonusLabel').innerText = hasInvested ? `+ Invested (${investedBonus})` : "Active Bond";
+      } else {
+        if (maxIEl) maxIEl.innerText = "0";
+        if (document.getElementById('investedBonusLabel')) document.getElementById('investedBonusLabel').innerText = "Requires First Ideal";
+        if (curIEl) curIEl.value = 0;
+      }
+
+      if (document.getElementById('maxH')) document.getElementById('maxH').innerText = maxHealth;
+      if (document.getElementById('maxF')) document.getElementById('maxF').innerText = maxFocus;
+
+      const updateBar = (id, curId, maxVal) => {
+        const curValEl = document.getElementById(curId);
+        const barEl = document.getElementById(id);
+        if (!curValEl || !barEl) return;
+        const cur = parseInt(curValEl.value) || 0;
+        const perc = maxVal > 0 ? Math.min((cur / maxVal) * 100, 100) : 0;
+        barEl.style.width = perc + '%';
+      };
+
+      updateBar('barH', 'curH', maxHealth);
+      updateBar('barF', 'curF', maxFocus);
+      if (maxIEl) updateBar('barI', 'curI', parseInt(maxIEl.innerText) || 0);
+
+      if (document.getElementById('lift')) document.getElementById('lift').innerText = getTableValue(stats.str, tables.strength);
+      if (document.getElementById('recovery')) document.getElementById('recovery').innerText = getTableValue(stats.wil, tables.recovery);
+
+      let moveVal = parseInt(getTableValue(stats.spd, tables.movement));
+      if (hasSurefooted) moveVal += 10;
+      if (document.getElementById('move')) document.getElementById('move').innerText = moveVal + " ft.";
+
+      if (document.getElementById('senses')) document.getElementById('senses').innerText = getTableValue(stats.awa, tables.senses);
+      if (document.getElementById('conn')) document.getElementById('conn').innerText = getTableValue(stats.pre, tables.connections);
+
+      if (document.getElementById('defP')) document.getElementById('defP').innerText = 10 + stats.str + stats.spd + (hasCustomary ? 2 : 0);
+      if (document.getElementById('defC')) document.getElementById('defC').innerText = 10 + stats.int + stats.wil + (hasCollected ? 2 : 0);
+      if (document.getElementById('defS')) document.getElementById('defS').innerText = 10 + stats.awa + stats.pre + (hasCollected ? 2 : 0) + (hasCustomary ? 2 : 0);
+
+      [...skills, ...allSurges].forEach(s => {
+        let bonus = 0;
+        if (allSurges.some(sur => sur.id === s.id)) {
+          for (const orderKey in radiantPathsData) {
+            if (unlockedTalentIds.has(`first_ideal_${orderKey}`) && radiantPathsData[orderKey].surges.includes(s.id)) {
+              bonus = 0;
+            }
+          }
+        }
+        const mod = stats[s.attr] + (skillRanks[s.id] || 0) + bonus;
+        const modEl = document.getElementById(`mod-${s.id}`);
+        if (modEl) modEl.innerText = `+${mod}`;
+      });
+    }
+
+    function exportCharacter() {
+      const charName = document.getElementById('charName').value || 'Unnamed_Radiant';
+      const data = {
+        charName: document.getElementById('charName').value,
+        ancestry: document.getElementById('ancestry').value,
+        heroicPath: document.getElementById('heroicPath').value,
+        radiantOrder: document.getElementById('radiantOrder').value,
+        specialty: document.getElementById('specialty').value,
+        level: document.getElementById('level').value,
+        curH: document.getElementById('curH').value,
+        curF: document.getElementById('curF').value,
+        curI: document.getElementById('curI').value,
+        maxI: document.getElementById('maxI') ? document.getElementById('maxI').innerText : 0,
+        str: document.getElementById('str').value,
+        spd: document.getElementById('spd').value,
+        int: document.getElementById('int').value,
+        wil: document.getElementById('wil').value,
+        awa: document.getElementById('awa').value,
+        pre: document.getElementById('pre').value,
+        deflect: document.getElementById('deflect').value,
+        expertises: document.getElementById('expertises').value,
+        skillRanks: skillRanks,
+        chosenTalents: chosenTalents,
+        unlockedTalentIds: Array.from(unlockedTalentIds)
+      };
+
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${charName.replace(/\s+/g, '_')}_Stormlight_Char.json`;
+      a.click();
+    }
+
+    function importCharacter(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (data.charName !== undefined) document.getElementById('charName').value = data.charName;
+          if (data.ancestry !== undefined) document.getElementById('ancestry').value = data.ancestry;
+
+          if (data.heroicPath !== undefined) {
+            document.getElementById('heroicPath').value = data.heroicPath;
+            updateSpecialties();
+          }
+          if (data.radiantOrder !== undefined) {
+            document.getElementById('radiantOrder').value = data.radiantOrder;
+            updateRadiantTrees();
+          }
+          if (data.specialty !== undefined) document.getElementById('specialty').value = data.specialty;
+          if (data.level !== undefined) document.getElementById('level').value = data.level;
+          if (data.curH !== undefined) document.getElementById('curH').value = data.curH;
+          if (data.curF !== undefined) document.getElementById('curF').value = data.curF;
+          if (data.curI !== undefined) document.getElementById('curI').value = data.curI;
+          if (data.str !== undefined) document.getElementById('str').value = data.str;
+          if (data.spd !== undefined) document.getElementById('spd').value = data.spd;
+          if (data.int !== undefined) document.getElementById('int').value = data.int;
+          if (data.wil !== undefined) document.getElementById('wil').value = data.wil;
+          if (data.awa !== undefined) document.getElementById('awa').value = data.awa;
+          if (data.pre !== undefined) document.getElementById('pre').value = data.pre;
+          if (data.deflect !== undefined) document.getElementById('deflect').value = data.deflect;
+          if (data.expertises !== undefined) document.getElementById('expertises').value = data.expertises;
+
+          if (data.skillRanks) Object.assign(skillRanks, data.skillRanks);
+          if (data.chosenTalents) {
+            for (let k in chosenTalents) delete chosenTalents[k];
+            Object.assign(chosenTalents, data.chosenTalents);
+          }
+          if (data.unlockedTalentIds) {
+            unlockedTalentIds.clear();
+            data.unlockedTalentIds.forEach(id => unlockedTalentIds.add(id));
+          }
+          updateTalentSlots();
+          updateSpecialtyTree();
+          updateRadiantTrees();
+          initSkills();
+          updateUI();
+        } catch (err) { console.error("Failed to parse character JSON:", err); }
+      };
+      reader.readAsText(file);
+    }
+
+    window.onload = () => {
+      initSkills();
+      document.querySelectorAll('input, textarea, select').forEach(i => i.addEventListener('input', () => {
+        updateUI();
+        if (i.id === 'specialty') updateSpecialtyTree();
+        if (i.id === 'radiantOrder') updateRadiantTrees();
+      }));
+      document.getElementById('talentModal').addEventListener('click', function (e) { if (e.target === this) closeTalentModal(); });
+      updateUI();
+    };
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,75 @@
+{
+    "talents": [
+        {
+            "id": "deadly_trap",
+            "name": "Deadly Trap",
+            "type": "Fast",
+            "prereq": {
+                "skill": "surv",
+                "rank": 1
+            },
+            "parent": null
+        },
+        {
+            "id": "experienced_trapper",
+            "name": "Experienced Trapper",
+            "type": "Special",
+            "prereq": {
+                "skill": "perc",
+                "rank": 2
+            },
+            "parent": "deadly_trap"
+        },
+        {
+            "id": "surefooted",
+            "name": "Surefooted",
+            "type": "Passive",
+            "prereq": null,
+            "parent": "experienced_trapper"
+        },
+        {
+            "id": "hunters_edge",
+            "name": "Hunter's Edge",
+            "type": "Passive",
+            "prereq": {
+                "skill": "surv",
+                "rank": 3
+            },
+            "parent": "experienced_trapper"
+        },
+        {
+            "id": "animal_bond",
+            "name": "Animal Bond",
+            "type": "Special",
+            "prereq": null,
+            "parent": null
+        },
+        {
+            "id": "protective_bond",
+            "name": "Protective Bond",
+            "type": "1 Action",
+            "prereq": null,
+            "parent": "animal_bond"
+        },
+        {
+            "id": "feral_connection",
+            "name": "Feral Connection",
+            "type": "Passive",
+            "prereq": {
+                "skill": "surv",
+                "rank": 2
+            },
+            "parent": "protective_bond"
+        },
+        {
+            "id": "pack_hunting",
+            "name": "Pack Hunting",
+            "type": "Reaction",
+            "prereq": {
+                "skill": "perc",
+                "rank": 3
+            },
+            "parent": "protective_bond"
+        }
+    ]
+}

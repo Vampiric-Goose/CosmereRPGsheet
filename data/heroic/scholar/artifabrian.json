@@ -1,0 +1,72 @@
+{
+    "talents": [
+        {
+            "id": "efficient_engineer",
+            "name": "Efficient Engineer",
+            "type": "Passive",
+            "prereq": {
+                "skill": "cr",
+                "rank": 1
+            },
+            "parent": null
+        },
+        {
+            "id": "deep_study",
+            "name": "Deep Study",
+            "type": "Passive",
+            "prereq": null,
+            "parent": "efficient_engineer"
+        },
+        {
+            "id": "fine_handiwork",
+            "name": "Fine Handiwork",
+            "type": "Passive",
+            "prereq": null,
+            "parent": "efficient_engineer"
+        },
+        {
+            "id": "experimental_tinkering",
+            "name": "Experimental Tinkering",
+            "type": "Special",
+            "prereq": null,
+            "parent": "fine_handiwork"
+        },
+        {
+            "id": "prized_acquisition",
+            "name": "Prized Acquisition",
+            "type": "Special",
+            "prereq": null,
+            "parent": null
+        },
+        {
+            "id": "inventive_design",
+            "name": "Inventive Design",
+            "type": "Passive",
+            "prereq": {
+                "skill": "cr",
+                "rank": 2
+            },
+            "parent": "prized_acquisition"
+        },
+        {
+            "id": "overcharge",
+            "name": "Overcharge",
+            "type": "Special",
+            "prereq": {
+                "skill": "cr",
+                "rank": 3
+            },
+            "parent": "prized_acquisition"
+        },
+        {
+            "id": "overwhelm_details",
+            "name": "Overwhelm with Details",
+            "type": "Special",
+            "prereq": {
+                "skill": "lore",
+                "rank": 3
+            },
+            "parent": "experimental_tinkering"
+        }
+    ]
+}

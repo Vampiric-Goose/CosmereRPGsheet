@@ -1,0 +1,75 @@
+{
+    "talents": [
+        {
+            "id": "practiced_kata",
+            "name": "Practiced Kata",
+            "type": "Special",
+            "prereq": null,
+            "parent": null
+        },
+        {
+            "id": "ironstance",
+            "name": "Ironstance",
+            "type": "1 Action",
+            "prereq": {
+                "skill": "ath",
+                "rank": 2
+            },
+            "parent": "practiced_kata"
+        },
+        {
+            "id": "surefooted",
+            "name": "Surefooted",
+            "type": "Passive",
+            "prereq": null,
+            "parent": "ironstance"
+        },
+        {
+            "id": "vinestance",
+            "name": "Vinestance",
+            "type": "1 Action",
+            "prereq": {
+                "skill": "ath",
+                "rank": 3
+            },
+            "parent": "feinting_strike"
+        },
+        {
+            "id": "flamestance",
+            "name": "Flamestance",
+            "type": "1 Action",
+            "prereq": {
+                "skill": "intm",
+                "rank": 1
+            },
+            "parent": null
+        },
+        {
+            "id": "signature_weapon",
+            "name": "Signature Weapon",
+            "type": "Passive",
+            "prereq": null,
+            "parent": "flamestance"
+        },
+        {
+            "id": "feinting_strike",
+            "name": "Feinting Strike",
+            "type": "1 Action",
+            "prereq": {
+                "skill": "intm",
+                "rank": 2
+            },
+            "parent": "flamestance"
+        },
+        {
+            "id": "wits_end",
+            "name": "Wit's End",
+            "type": "Fast",
+            "prereq": {
+                "skill": "intm",
+                "rank": 3
+            },
+            "parent": "feinting_strike"
+        }
+    ]
+}

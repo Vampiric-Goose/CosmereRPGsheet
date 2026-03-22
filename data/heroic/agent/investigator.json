@@ -1,0 +1,75 @@
+{
+    "talents": [
+        {
+            "id": "watchful_eye",
+            "name": "Watchful Eye",
+            "type": "Reaction",
+            "prereq": {
+                "skill": "ded",
+                "rank": 1
+            },
+            "parent": null
+        },
+        {
+            "id": "quick_analysis",
+            "name": "Quick Analysis",
+            "type": "Free Action",
+            "prereq": null,
+            "parent": "watchful_eye"
+        },
+        {
+            "id": "gather_evidence",
+            "name": "Gather Evidence",
+            "type": "Passive",
+            "prereq": {
+                "skill": "ins",
+                "rank": 2
+            },
+            "parent": "quick_analysis"
+        },
+        {
+            "id": "sleuths_instincts",
+            "name": "Sleuth's Insticts",
+            "type": "Passive",
+            "prereq": {
+                "skill": "ded",
+                "rank": 3
+            },
+            "parent": "hardy"
+        },
+        {
+            "id": "get_em_talking",
+            "name": "Get 'Em Talking",
+            "type": "Fast",
+            "prereq": {
+                "skill": "ins",
+                "rank": 2
+            },
+            "parent": null
+        },
+        {
+            "id": "baleful",
+            "name": "Baleful",
+            "type": "Passive",
+            "prereq": null,
+            "parent": "get_em_talking"
+        },
+        {
+            "id": "hardy",
+            "name": "Hardy",
+            "type": "Passive",
+            "prereq": null,
+            "parent": "baleful"
+        },
+        {
+            "id": "close_the_case",
+            "name": "Close the Case",
+            "type": "Slow",
+            "prereq": {
+                "skill": "ded",
+                "rank": 3
+            },
+            "parent": "hardy"
+        }
+    ]
+}

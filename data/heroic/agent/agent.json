@@ -1,0 +1,11 @@
+{
+    "specialties": [
+        "Investigator",
+        "Spy",
+        "Thief"
+    ],
+    "startingTalent": "Opportunist",
+    "startingTalentType": "Special",
+    "startingTalentDesc": "Once per round, you can reroll your plot die.",
+    "talentTrees": {}
+}

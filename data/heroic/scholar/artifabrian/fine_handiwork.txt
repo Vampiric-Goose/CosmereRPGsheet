@@ -1,0 +1,3 @@
+When crafting, advanced
+features cost one upgrade
+instead of two.

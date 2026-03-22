@@ -1,0 +1,75 @@
+{
+    "talents": [
+        {
+            "id": "shard_training",
+            "name": "Shard Training",
+            "type": "Special",
+            "prereq": null,
+            "parent": null
+        },
+        {
+            "id": "windstance",
+            "name": "Windstance",
+            "type": "1 Action",
+            "prereq": {
+                "skill": "perc",
+                "rank": 1
+            },
+            "parent": "shard_training"
+        },
+        {
+            "id": "stonestance",
+            "name": "Stonestance",
+            "type": "1 Action",
+            "prereq": null,
+            "parent": null
+        },
+        {
+            "id": "mighty",
+            "name": "Mighty",
+            "type": "Passive",
+            "prereq": null,
+            "parent": "stonestance"
+        },
+        {
+            "id": "bloodstance",
+            "name": "Bloodstance",
+            "type": "1 Action",
+            "prereq": {
+                "skill": "ath",
+                "rank": 2
+            },
+            "parent": "mighty"
+        },
+        {
+            "id": "meteoric_leap",
+            "name": "Meteoric Leap",
+            "type": "Fast",
+            "prereq": {
+                "skill": "ath",
+                "rank": 3
+            },
+            "parent": "bloodstance"
+        },
+        {
+            "id": "precise_parry",
+            "name": "Precise Parry",
+            "type": "Reaction",
+            "prereq": {
+                "skill": "perc",
+                "rank": 3
+            },
+            "parent": null
+        },
+        {
+            "id": "shattering_blow",
+            "name": "Shattering Blow",
+            "type": "Special",
+            "prereq": {
+                "skill": "perc",
+                "rank": 2
+            },
+            "parent": "windstance"
+        }
+    ]
+}

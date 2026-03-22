@@ -1,0 +1,7 @@
+When crafting, your
+Opportunity range expands
+by 1 and your crafting time
+is halved. During a long rest,
+you can reconfigure your
+Prized Acquisition fabrial to a
+different fabrial.

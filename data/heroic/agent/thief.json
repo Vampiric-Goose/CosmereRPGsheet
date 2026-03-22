@@ -1,0 +1,72 @@
+{
+    "talents": [
+        {
+            "id": "risky_behavior",
+            "name": "Risky Behavior",
+            "type": "Special",
+            "prereq": {
+                "skill": "ins",
+                "rank": 2
+            },
+            "parent": null
+        },
+        {
+            "id": "double_down",
+            "name": "Double Down",
+            "type": "Special",
+            "prereq": null,
+            "parent": "risky_behavior"
+        },
+        {
+            "id": "underworld_contacts",
+            "name": "Underworld Contacts",
+            "type": "Special",
+            "prereq": null,
+            "parent": "double_down"
+        },
+        {
+            "id": "fast_talker",
+            "name": "Fast Talker",
+            "type": "Free Action",
+            "prereq": {
+                "skill": "ins",
+                "rank": 3
+            },
+            "parent": "underworld_contacts"
+        },
+        {
+            "id": "cheap_shot",
+            "name": "Cheap Shot",
+            "type": "1 Action",
+            "prereq": null,
+            "parent": null
+        },
+        {
+            "id": "surefooted",
+            "name": "Surefooted",
+            "type": "Passive",
+            "prereq": null,
+            "parent": "cheap_shot"
+        },
+        {
+            "id": "shadow_step",
+            "name": "Shadow Step",
+            "type": "Free Action",
+            "prereq": {
+                "skill": "th",
+                "rank": 3
+            },
+            "parent": "surefooted"
+        },
+        {
+            "id": "tricksters_hand",
+            "name": "Trickster's Hand",
+            "type": "Free Action",
+            "prereq": {
+                "skill": "th",
+                "rank": 3
+            },
+            "parent": "surefooted"
+        }
+    ]
+}

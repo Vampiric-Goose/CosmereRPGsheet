@@ -1,0 +1,4 @@
+Use Field Medicine as a free action.
+Your healing abilities restore
+additional health equal to your
+ranks in Medicine.

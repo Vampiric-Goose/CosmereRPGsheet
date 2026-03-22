@@ -1,0 +1,75 @@
+{
+    "talents": [
+        {
+            "id": "steadfast_challenge",
+            "name": "Steadfast Challenge",
+            "type": "1 Action",
+            "prereq": {
+                "skill": "dis",
+                "rank": 1
+            },
+            "parent": null
+        },
+        {
+            "id": "withering_retort",
+            "name": "Withering Retort",
+            "type": "Reaction",
+            "prereq": {
+                "skill": "dis",
+                "rank": 2
+            },
+            "parent": "steadfast_challenge"
+        },
+        {
+            "id": "calm_appeal",
+            "name": "Calm Appeal",
+            "type": "Special",
+            "prereq": {
+                "skill": "dis",
+                "rank": 2
+            },
+            "parent": "withering_retort"
+        },
+        {
+            "id": "peaceful_solution",
+            "name": "Peaceful Solution",
+            "type": "Free Action",
+            "prereq": {
+                "skill": "dis",
+                "rank": 3
+            },
+            "parent": "calm_appeal"
+        },
+        {
+            "id": "collected",
+            "name": "Collected",
+            "type": "Passive",
+            "prereq": null,
+            "parent": null
+        },
+        {
+            "id": "well_dressed",
+            "name": "Well Dressed",
+            "type": "Special",
+            "prereq": null,
+            "parent": "steadfast_challenge"
+        },
+        {
+            "id": "high_society_contacts",
+            "name": "High Society Contacts",
+            "type": "Special",
+            "prereq": null,
+            "parent": "well_dressed"
+        },
+        {
+            "id": "practiced_oratory",
+            "name": "Practiced Oratory",
+            "type": "Special",
+            "prereq": {
+                "skill": "pers",
+                "rank": 3
+            },
+            "parent": "high_society_contacts"
+        }
+    ]
+}

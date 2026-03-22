@@ -1,0 +1,72 @@
+{
+    "talents": [
+        {
+            "id": "sure_outcome",
+            "name": "Sure Outcome",
+            "type": "Special",
+            "prereq": {
+                "skill": "ins",
+                "rank": 2
+            },
+            "parent": null
+        },
+        {
+            "id": "collected",
+            "name": "Collected",
+            "type": "Passive",
+            "prereq": null,
+            "parent": "sure_outcome"
+        },
+        {
+            "id": "subtle_takedown",
+            "name": "Subtle Takedown",
+            "type": "Fast",
+            "prereq": {
+                "skill": "ins",
+                "rank": 3
+            },
+            "parent": "cover_story"
+        },
+        {
+            "id": "mercurial_facade",
+            "name": "Mercurial Facade",
+            "type": "Special",
+            "prereq": {
+                "skill": "decp",
+                "rank": 3
+            },
+            "parent": "subtle_takedown"
+        },
+        {
+            "id": "plausible_excuse",
+            "name": "Plausible Excuse",
+            "type": "Reaction",
+            "prereq": {
+                "skill": "decp",
+                "rank": 1
+            },
+            "parent": null
+        },
+        {
+            "id": "cover_story",
+            "name": "Cover Story",
+            "type": "Passive",
+            "prereq": null,
+            "parent": "plausible_excuse"
+        },
+        {
+            "id": "mighty",
+            "name": "Mighty",
+            "type": "Passive",
+            "prereq": null,
+            "parent": "cover_story"
+        },
+        {
+            "id": "high_society_contacts",
+            "name": "High Society Contacts",
+            "type": "Special",
+            "prereq": null,
+            "parent": "cover_story"
+        }
+    ]
+}

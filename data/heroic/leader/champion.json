@@ -1,0 +1,78 @@
+{
+    "talents": [
+        {
+            "id": "combat_coordination",
+            "name": "Combat Coordination",
+            "type": "Free Action",
+            "prereq": {
+                "skill": "lead",
+                "rank": 2
+            },
+            "parent": null
+        },
+        {
+            "id": "imposing_posture",
+            "name": "Imposing Posture",
+            "type": "Passive",
+            "prereq": {
+                "skill": "ath",
+                "rank": 2
+            },
+            "parent": "combat_coordination"
+        },
+        {
+            "id": "mighty",
+            "name": "Mighty",
+            "type": "Passive",
+            "prereq": null,
+            "parent": "imposing_posture"
+        },
+        {
+            "id": "resilient_hero",
+            "name": "Resilient Hero",
+            "type": "Reaction",
+            "prereq": {
+                "skill": "ath",
+                "rank": 3
+            },
+            "parent": "resolute_stand"
+        },
+        {
+            "id": "valiant_intervention",
+            "name": "Valiant Intervention",
+            "type": "1 Action",
+            "prereq": {
+                "skill": "ath",
+                "rank": 1
+            },
+            "parent": null
+        },
+        {
+            "id": "hardy",
+            "name": "Hardy",
+            "type": "Passive",
+            "prereq": null,
+            "parent": "valiant_intervention"
+        },
+        {
+            "id": "resolute_stand",
+            "name": "Resolute Stand",
+            "type": "Special",
+            "prereq": {
+                "skill": "ath",
+                "rank": 1
+            },
+            "parent": "hardy"
+        },
+        {
+            "id": "demonstrative_command",
+            "name": "Demonstrative Command",
+            "type": "Special",
+            "prereq": {
+                "skill": "lead",
+                "rank": 2
+            },
+            "parent": "resolute_stand"
+        }
+    ]
+}

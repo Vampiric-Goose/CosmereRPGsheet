@@ -1,0 +1,75 @@
+{
+    "talents": [
+        {
+            "id": "strategize",
+            "name": "Strategize",
+            "type": "Special",
+            "prereq": {
+                "skill": "ded",
+                "rank": 1
+            },
+            "parent": null
+        },
+        {
+            "id": "composed",
+            "name": "Composed",
+            "type": "Passive",
+            "prereq": null,
+            "parent": "strategize"
+        },
+        {
+            "id": "deep_contemplation",
+            "name": "Deep Contemplation",
+            "type": "Fast",
+            "prereq": {
+                "skill": "lore",
+                "rank": 2
+            },
+            "parent": "composed"
+        },
+        {
+            "id": "contingency",
+            "name": "Contingency",
+            "type": "Reaction",
+            "prereq": {
+                "skill": "lore",
+                "rank": 3
+            },
+            "parent": "composed"
+        },
+        {
+            "id": "mind_body",
+            "name": "Mind and Body",
+            "type": "Passive",
+            "prereq": null,
+            "parent": null
+        },
+        {
+            "id": "know_your_moment",
+            "name": "Know Your Moment",
+            "type": "Passive",
+            "prereq": {
+                "skill": "ded",
+                "rank": 2
+            },
+            "parent": "mind_body"
+        },
+        {
+            "id": "keen_insight",
+            "name": "Keen Insight",
+            "type": "Passive",
+            "prereq": null,
+            "parent": "deep_contemplation"
+        },
+        {
+            "id": "turning_point",
+            "name": "Turning Point",
+            "type": "Fast",
+            "prereq": {
+                "skill": "ded",
+                "rank": 3
+            },
+            "parent": "contingency"
+        }
+    ]
+}

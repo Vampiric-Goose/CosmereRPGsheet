@@ -1,0 +1,75 @@
+{
+    "talents": [
+        {
+            "id": "cautious_advance",
+            "name": "Cautious Advance",
+            "type": "Fast",
+            "prereq": {
+                "skill": "dis",
+                "rank": 1
+            },
+            "parent": null
+        },
+        {
+            "id": "combat_training",
+            "name": "Combat Training",
+            "type": "Special",
+            "prereq": null,
+            "parent": null
+        },
+        {
+            "id": "defensive_position",
+            "name": "Defensive Position",
+            "type": "Passive",
+            "prereq": {
+                "skill": "ath",
+                "rank": 2
+            },
+            "parent": "cautious_advance"
+        },
+        {
+            "id": "devastating_blow",
+            "name": "Devastating Blow",
+            "type": "Fast",
+            "prereq": {
+                "skill": "ath",
+                "rank": 3
+            },
+            "parent": "combat_training"
+        },
+        {
+            "id": "formation_drills",
+            "name": "",
+            "type": "Passive",
+            "prereq": {
+                "skill": "dis",
+                "rank": 2
+            },
+            "parent": "defensive_position"
+        },
+        {
+            "id": "hardy",
+            "name": "Hardy",
+            "type": "Passive",
+            "prereq": null,
+            "parent": "combat_training"
+        },
+        {
+            "id": "wary",
+            "name": "Wary",
+            "type": "Passive",
+            "prereq": {
+                "skill": "dis",
+                "rank": 3
+            },
+            "parent": "defensive_position"
+        },
+        {
+            "id": "swift_strikes",
+            "name": "Swift Strikes",
+            "type": "1 Action",
+            "prereq": null,
+            "parent": "hardy"
+        }
+    ]
+}

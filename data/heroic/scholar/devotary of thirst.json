@@ -1,0 +1,81 @@
+{
+    "talents": [
+        {
+            "id": "affairudition",
+            "name": "Affairudition",
+            "type": "Special",
+            "prereq": null,
+            "parent": null
+        },
+        {
+            "id": "charismatic",
+            "name": "Charismatic",
+            "type": "Passive",
+            "prereq": {
+                "skill": "pers",
+                "rank": 1
+            },
+            "parent": null
+        },
+        {
+            "id": "for_the_plot",
+            "name": "For the Plot",
+            "type": "Special",
+            "prereq": {
+                "skill": "lore",
+                "rank": 1
+            },
+            "parent": "affairudition"
+        },
+        {
+            "id": "overwhelm_senses",
+            "name": "Overwhelm Senses",
+            "type": "Action",
+            "prereq": {
+                "skill": "lore",
+                "rank": 2
+            },
+            "parent": "charismatic"
+        },
+        {
+            "id": "its_complicated",
+            "name": "It's Complicated",
+            "type": "Special",
+            "prereq": {
+                "skill": "pers",
+                "rank": 2
+            },
+            "parent": "for_the_plot"
+        },
+        {
+            "id": "smoldering_graze",
+            "name": "Smoldering Graze",
+            "type": "Passive",
+            "prereq": {
+                "skill": "pers",
+                "rank": 3
+            },
+            "parent": "overwhelm_senses"
+        },
+        {
+            "id": "pillow_talk",
+            "name": "Pillow Talk",
+            "type": "Passive",
+            "prereq": {
+                "skill": "pers",
+                "rank": 3
+            },
+            "parent": "affairudition"
+        },
+        {
+            "id": "most_ardently",
+            "name": "Most Ardently",
+            "type": "Passive",
+            "prereq": {
+                "skill": "lore",
+                "rank": 3
+            },
+            "parent": "smoldering_graze"
+        }
+    ]
+}

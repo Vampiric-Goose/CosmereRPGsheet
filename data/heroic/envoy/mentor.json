@@ -1,0 +1,75 @@
+{
+    "talents": [
+        {
+            "id": "sound_advice",
+            "name": "Sound Advice",
+            "type": "Reaction",
+            "prereq": null,
+            "parent": null
+        },
+        {
+            "id": "lessons_in_patience",
+            "name": "Lessons in Patience",
+            "type": "Passive",
+            "prereq": {
+                "skill": "dis",
+                "rank": 2
+            },
+            "parent": "sound_advice"
+        },
+        {
+            "id": "instill_confidence",
+            "name": "Instill Confidence",
+            "type": "Special",
+            "prereq": null,
+            "parent": "lessons_in_patience"
+        },
+        {
+            "id": "foresight_mentor",
+            "name": "Foresight",
+            "type": "Passive",
+            "prereq": {
+                "skill": "dis",
+                "rank": 3
+            },
+            "parent": "instill_confidence"
+        },
+        {
+            "id": "practical_demonstration",
+            "name": "Practical Demonstration",
+            "type": "Free Action",
+            "prereq": {
+                "skill": "lead",
+                "rank": 1
+            },
+            "parent": null
+        },
+        {
+            "id": "mighty",
+            "name": "Mighty",
+            "type": "Passive",
+            "prereq": null,
+            "parent": "practical_demonstration"
+        },
+        {
+            "id": "guiding_oration",
+            "name": "Guiding Oration",
+            "type": "Passive",
+            "prereq": {
+                "skill": "lead",
+                "rank": 2
+            },
+            "parent": "mighty"
+        },
+        {
+            "id": "rallying_shout",
+            "name": "Rallying Shout",
+            "type": "Passive",
+            "prereq": {
+                "skill": "lead",
+                "rank": 3
+            },
+            "parent": "guiding_oration"
+        }
+    ]
+}

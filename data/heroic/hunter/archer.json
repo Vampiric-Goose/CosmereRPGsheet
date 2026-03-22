@@ -1,0 +1,75 @@
+{
+    "talents": [
+        {
+            "id": "tagging_shot",
+            "name": "Tagging Shot",
+            "type": "Slow",
+            "prereq": {
+                "skill": "perc",
+                "rank": 2
+            },
+            "parent": null
+        },
+        {
+            "id": "sharp_eye",
+            "name": "Sharp Eye",
+            "type": "Special",
+            "prereq": null,
+            "parent": "tagging_shot"
+        },
+        {
+            "id": "exploit_weakness",
+            "name": "Exploit Weakness",
+            "type": "Free Action",
+            "prereq": {
+                "skill": "perc",
+                "rank": 3
+            },
+            "parent": "sharp_eye"
+        },
+        {
+            "id": "unrelenting_salvo",
+            "name": "Unrelenting Salvo",
+            "type": "Passive",
+            "prereq": {
+                "skill": "agi",
+                "rank": 3
+            },
+            "parent": "hardy"
+        },
+        {
+            "id": "combat_training",
+            "name": "Combat Training",
+            "type": "Special",
+            "prereq": null,
+            "parent": null
+        },
+        {
+            "id": "steady_aim",
+            "name": "Steady Aim",
+            "type": "1 Action",
+            "prereq": {
+                "skill": "agi",
+                "rank": 1
+            },
+            "parent": "combat_training"
+        },
+        {
+            "id": "backstep",
+            "name": "Backstep",
+            "type": "Free Action",
+            "prereq": {
+                "skill": "Agi",
+                "rank": 2
+            },
+            "parent": "steady_aim"
+        },
+        {
+            "id": "hardy",
+            "name": "Hardy",
+            "type": "Passive",
+            "prereq": null,
+            "parent": "steady_aim"
+        }
+    ]
+}

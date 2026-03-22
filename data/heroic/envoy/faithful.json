@@ -1,0 +1,75 @@
+{
+    "talents": [
+        {
+            "id": "customary_garb",
+            "name": "Customary Garb",
+            "type": "Passive",
+            "prereq": null,
+            "parent": null
+        },
+        {
+            "id": "devoted_presence",
+            "name": "Devoted Presence",
+            "type": "Special",
+            "prereq": {
+                "skill": "lore",
+                "rank": 1
+            },
+            "parent": "customary_garb"
+        },
+        {
+            "id": "stalwart_presence",
+            "name": "Stalwart Presence",
+            "type": "Special",
+            "prereq": {
+                "skill": "dis",
+                "rank": 2
+            },
+            "parent": "devoted_presence"
+        },
+        {
+            "id": "sage_counsel",
+            "name": "Sage Counsel",
+            "type": "Special",
+            "prereq": {
+                "skill": "lore",
+                "rank": 3
+            },
+            "parent": "stalwart_presence"
+        },
+        {
+            "id": "galvanize",
+            "name": "Galvanize",
+            "type": "Fast",
+            "prereq": null,
+            "parent": null
+        },
+        {
+            "id": "composed",
+            "name": "Composed",
+            "type": "Passive",
+            "prereq": null,
+            "parent": "galvanize"
+        },
+        {
+            "id": "applied_motivation",
+            "name": "Applied Motivation",
+            "type": "Passive",
+            "prereq": {
+                "skill": "dis",
+                "rank": 2
+            },
+            "parent": "galvanize"
+        },
+        {
+            "id": "inspired_zeal",
+            "name": "Inspired Zeal",
+            "type": "Special",
+            "prereq": {
+                "skill": "dis",
+                "rank": 3
+            },
+            "parent": "applied_motivation"
+        }
+    ]
+}

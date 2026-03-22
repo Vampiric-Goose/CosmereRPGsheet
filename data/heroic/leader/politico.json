@@ -1,0 +1,72 @@
+{
+    "talents": [
+        {
+            "id": "cutthroat_tactics",
+            "name": "Cutthroat Tactics",
+            "type": "Special",
+            "prereq": {
+                "skill": "decp",
+                "rank": 1
+            },
+            "parent": null
+        },
+        {
+            "id": "rumormonger",
+            "name": "Rumormonger",
+            "type": "Special",
+            "prereq": null,
+            "parent": "cutthroat_tactics"
+        },
+        {
+            "id": "baleful",
+            "name": "Baleful",
+            "type": "Passive",
+            "prereq": null,
+            "parent": "rumormonger"
+        },
+        {
+            "id": "shrewd_command",
+            "name": "Shrewd Command",
+            "type": "Special",
+            "prereq": {
+                "skill": "lead",
+                "rank": 2
+            },
+            "parent": "rumormonger"
+        },
+        {
+            "id": "tactical_ploy",
+            "name": "Tactical Ploy",
+            "type": "1 Action",
+            "prereq": null,
+            "parent": null
+        },
+        {
+            "id": "well_dressed",
+            "name": "Well Dressed",
+            "type": "Special",
+            "prereq": null,
+            "parent": "rumormonger"
+        },
+        {
+            "id": "set_at_odds",
+            "name": "Set at Odds",
+            "type": "Fast",
+            "prereq": {
+                "skill": "lead",
+                "rank": 3
+            },
+            "parent": "baleful"
+        },
+        {
+            "id": "grand_deception",
+            "name": "Grand Deception",
+            "type": "Slow",
+            "prereq": {
+                "skill": "decp",
+                "rank": 3
+            },
+            "parent": "shrewd_command"
+        }
+    ]
+}

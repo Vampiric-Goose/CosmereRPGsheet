@@ -1,0 +1,12 @@
+{
+    "specialties": [
+        "Artifabrian",
+        "Strategist",
+        "Surgeon",
+        "Devotary of Thirst"
+    ],
+    "startingTalent": "Erudition",
+    "startingTalentType": "Special",
+    "startingTalentDesc": "Temporarily gain a cultural or utility expertise and a rank in two non-surge cognitive skills. Reassign these after a long rest with library access.",
+    "talentTrees": {}
+}

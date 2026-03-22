@@ -1,0 +1,7 @@
+After you Gain Advantage
+using an Erudition skill, grant
+that advantage to an ally
+instead. You can spend 2 focus
+to also prevent the target from
+using reactions against that
+ally.

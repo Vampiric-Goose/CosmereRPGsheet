@@ -1,0 +1,11 @@
+{
+    "specialties": [
+        "Duelist",
+        "Shardbearer",
+        "Soldier"
+    ],
+    "startingTalent": "Vigilant Stance",
+    "startingTalentType": "1 Action",
+    "startingTalentDesc": "Enter Vigilant Stance: Reduce the focus cost of Dodge and Reactive Strike by 1, and you can enter other stances as a free action.",
+    "talentTrees": {}
+}

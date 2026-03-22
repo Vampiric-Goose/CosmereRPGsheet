@@ -1,0 +1,75 @@
+{
+    "talents": [
+        {
+            "id": "composed",
+            "name": "Composed",
+            "type": "Passive",
+            "prereq": null,
+            "parent": null
+        },
+        {
+            "id": "well_supplied",
+            "name": "Well Supplied",
+            "type": "Special",
+            "prereq": {
+                "skill": "pers",
+                "rank": 2
+            },
+            "parent": "composed"
+        },
+        {
+            "id": "relentless_march",
+            "name": "Relentless March",
+            "type": "Passive",
+            "prereq": {
+                "skill": "pers",
+                "rank": 3
+            },
+            "parent": "confident_command"
+        },
+        {
+            "id": "synchronized_assault",
+            "name": "Synchronized Assault",
+            "type": "Slow",
+            "prereq": {
+                "skill": "lead",
+                "rank": 3
+            },
+            "parent": "authority"
+        },
+        {
+            "id": "through_the_fray",
+            "name": "Through The Fray",
+            "type": "1 Action",
+            "prereq": {
+                "skill": "pers",
+                "rank": 1
+            },
+            "parent": null
+        },
+        {
+            "id": "customary_garb",
+            "name": "Customary Garb",
+            "type": "Passive",
+            "prereq": null,
+            "parent": "through_the_fray"
+        },
+        {
+            "id": "confident_command",
+            "name": "Confident Command",
+            "type": "Special",
+            "prereq": {
+                "skill": "lead",
+                "rank": 2
+            },
+            "parent": "customary_garb"
+        },
+        {
+            "id": "authority",
+            "name": "Authority",
+            "type": "Passive",
+            "prereq": null,
+            "parent": "confident_command"
+        }
+    ]
+}
