@@ -565,247 +565,6 @@
 
   <script src="heroicPathsData.js"></script>
   <script>
-    // const heroicPathsData = {
-    //   agent: {
-    //     specialties: ["Investigator", "Spy", "Thief"],
-    //     startingTalent: "Opportunist",
-    //     startingTalentType: "Special",
-    //     startingTalentDesc: "Once per round, when you roll a plot die, you can reroll that result. The original roll has no effect and you must use the new result.",
-    //     talentTrees: {
-    //       investigator: [
-    //         { id: 'watchful_eye', name: 'Watchful Eye', type: 'Reaction', desc: 'Use Opportunist on the plot die of a willing ally within 20 feet.', prereq: { skill: 'ded', rank: 1 } },
-    //         { id: 'get_em_talking', name: "Get 'Em Talking", type: '1 Action', desc: 'With a leading question or cutting remark, you goad others into revealing their motives. Spend 1 focus to make a Deduction test against the Spiritual defense of a character you can influence. On a success, you learn the target\'s motivation for being in the scene. Until the end of the scene, when you make a test to leverage this motivation against the target, you can raise the stakes.', prereq: { skill: 'ins', rank: 2 } },
-    //         { id: 'quick_analysis', name: 'Quick Analysis', type: 'Free Action', desc: 'Your mind quickly files and organizes data, and you swiftly act on that information while under pressure. Spend 2 focus to gain a Free Action, which you can only use to make cognitive skill tests via the following actions: Use a Skill, Gain Advantage, or an action from any Agent talent. During a conversation or endeavor, at the GM\'s discretion, you can instead use both to make an additional contribution for the round.', parent: 'watchful_eye' },
-    //         { id: 'baleful', name: 'Baleful', type: 'Passive', desc: 'To resist your influence, a character must spend additional focus equal to your tier.', parent: 'get_em_talking' },
-    //         { id: 'gather_evidence', name: 'Gather Evidence', type: 'Passive', desc: 'Observing clues in your environment, you slowly but surely build a mental model of the mysteries before you. After you succeed on a cognitive test against another character, you become Focused until the end of your next turn. Additionally, when you acquire this talent, gain a utility expertise in Legal Codes.', parent: 'quick_analysis', prereq: { skill: 'ins', rank: 2 } },
-    //         { id: 'hardy', name: 'Hardy', type: 'Passive', desc: 'Gain +1 max health per level (including previous levels).', parent: 'baleful' },
-    //         { id: 'sleuths_instincts', name: 'Sleuth\'s Instincts', type: 'Passive', desc: 'Advantage on cognitive tests vs characters whose motivation you know. Know when they lie.', parent: 'gather_evidence', prereq: { skill: 'ded', rank: 3 } },
-    //         { id: 'close_the_case', name: 'Close the Case', type: 'Slow', desc: 'Spend 3 focus to test Deduction vs. Cognitive. Success: target backs down. Resisting gives them disadvantage.', parent: 'hardy', prereq: { skill: 'ded', rank: 3 } }
-    //       ],
-    //       spy: [
-    //         { id: 'sure_outcome', name: 'Sure Outcome', type: 'Special', desc: 'When using Opportunist, spend 2 focus to change result to 4 or opportunity.', prereq: { skill: 'ins', rank: 2 } },
-    //         { id: 'plausible_excuse', name: 'Plausible Excuse', type: 'Reaction', desc: 'Gain Sleight of Hand expertise. When discovered skulking, spend 2 focus to feign innocence.', prereq: { skill: 'decp', rank: 1 } },
-    //         { id: 'collected', name: 'Collected', type: 'Passive', desc: 'Increase your Cognitive and Spiritual defenses by 2.', parent: 'sure_outcome' },
-    //         { id: 'cover_story', name: 'Cover Story', type: 'Passive', desc: 'Gain a false identity and a relevant cultural expertise.', parent: 'plausible_excuse' },
-    //         { id: 'subtle_takedown', name: 'Subtle Takedown', type: '1 Action', desc: 'Unarmed attack vs unsuspecting target\'s Cognitive. Hit: silence target.', parent: 'cover_story', prereq: { skill: 'ins', rank: 3 } },
-    //         { id: 'mighty', name: 'Mighty', type: 'Passive', desc: 'Deal extra damage 1 + tier for each Action spent on an attack.', parent: 'cover_story' },
-    //         { id: 'mercurial_facade', name: 'Mercurial Facade', type: 'Special', desc: 'Disguise using Deception without supplies. First character to see through is Surprised.', parent: 'subtle_takedown', prereq: { skill: 'decp', rank: 3 } },
-    //         { id: 'high_society_contacts', name: 'High Society Contacts', type: 'Special', desc: 'Gain High Society expertise. Spend 2 focus to add opportunity to social test.', parent: 'cover_story' }
-    //       ],
-    //       thief: [
-    //         { id: 'risky_behavior', name: 'Risky Behavior', type: 'Special', desc: 'Before a test, spend 1 focus to raise the stakes.', prereq: { skill: 'ins', rank: 2 } },
-    //         { id: 'cheap_shot', name: 'Cheap Shot', type: '1 Action', desc: 'Unarmed attack vs Cognitive to Stun. Can spend opportunity to steal item.' },
-    //         { id: 'double_down', name: 'Double Down', type: 'Special', desc: 'Reroll Opportunist again. Complication costs 2 focus.', parent: 'risky_behavior' },
-    //         { id: 'surefooted', name: 'Surefooted', type: 'Passive', desc: 'Movement rate +10. Reduce falling/terrain damage by twice tier.', parent: 'cheap_shot' },
-    //         { id: 'underworld_contacts', name: 'Underworld Contacts', type: 'Special', desc: 'Gain Criminal Groups expertise. Spend 2 focus to add opportunity to social test.', parent: 'double_down' },
-    //         { id: 'shadow_step', name: 'Shadow Step', type: 'Fast', desc: 'After Disengage, spend 2 focus to hide via Thievery test.', parent: 'surefooted', prereq: { skill: 'th', rank: 3 } },
-    //         { id: 'fast_talker', name: 'Fast Talker', type: 'Free Action', desc: 'Spend 2 focus to gain Free Action for spiritual skill tests.', parent: 'underworld_contacts', prereq: { skill: 'ins', rank: 3 } },
-    //         { id: 'tricksters_hand', name: 'Trickster\'s Hand', type: 'Free Action', desc: 'Spend 2 focus to gain Free Action for physical skill tests.', parent: 'shadow_step', prereq: { skill: 'th', rank: 3 } }
-    //       ]
-    //     }
-    //   },
-    //   envoy: {
-    //     specialties: ["Diplomat", "Faithful", "Mentor"],
-    //     startingTalent: "Rousing Presence",
-    //     startingTalentType: "1 Action",
-    //     startingTalentDesc: "Ally within 30ft becomes Determined until end of scene.",
-    //     talentTrees: {
-    //       diplomat: [
-    //         { id: 'steadfast_challenge', name: 'Steadfast Challenge', type: '1 Action', desc: 'Test Discipline vs Spiritual to Disorient target.', prereq: { skill: 'dis', rank: 1 } },
-    //         { id: 'collected', name: 'Collected', type: 'Passive', desc: 'Increase your Cognitive and Spiritual defenses by 2.' },
-    //         { id: 'withering_retort', name: 'Withering Retort', type: 'Reaction', desc: 'Increase deflect by Discipline ranks against an attack.', parent: 'steadfast_challenge', prereq: { skill: 'dis', rank: 2 } },
-    //         { id: 'well_dressed', name: 'Well Dressed', type: 'Special', desc: 'Gain Fashion expertise. Advantage on first social test.', parent: 'collected' },
-    //         { id: 'calm_appeal', name: 'Calm Appeal', type: 'Special', desc: 'Spend 1 focus to pacify Disoriented target.', parent: 'withering_retort', prereq: { skill: 'dis', rank: 2 } },
-    //         { id: 'high_society_contacts', name: 'High Society Contacts', type: 'Special', desc: 'Gain High Society expertise. Spend 2 focus to add opportunity.', parent: 'well_dressed' },
-    //         { id: 'peaceful_solution', name: 'Peaceful Solution', type: 'Free Action', desc: 'If all non-minions are pacified, end combat.', parent: 'calm_appeal', prereq: { skill: 'dis', rank: 3 } },
-    //         { id: 'practiced_oratory', name: 'Practiced Oratory', type: 'Special', desc: 'Spend focus to add extra targets to Leader actions.', parent: 'high_society_contacts', prereq: { skill: 'pers', rank: 3 } }
-    //       ],
-    //       faithful: [
-    //         { id: 'customary_garb', name: 'Customary Garb', type: 'Passive', desc: 'Increase Physical and Spiritual defenses by 2 while dressed appropriately.' },
-    //         { id: 'galvanize', name: 'Galvanize', type: '2 Actions', desc: 'Ally rolls recovery die and recovers focus.' },
-    //         { id: 'devoted_presence', name: 'Devoted Presence', type: 'Special', desc: 'Remove Prone, Slowed, Stunned, Surprised when using Rousing Presence.', parent: 'customary_garb', prereq: { skill: 'lore', rank: 1 } },
-    //         { id: 'composed', name: 'Composed', type: 'Passive', desc: 'Increase max focus by your tier.', parent: 'galvanize' },
-    //         { id: 'stalwart_presence', name: 'Stalwart Presence', type: 'Special', desc: 'Increase target defense by 2 when using Rousing Presence.', parent: 'devoted_presence', prereq: { skill: 'dis', rank: 2 } },
-    //         { id: 'applied_motivation', name: 'Applied Motivation', type: 'Passive', desc: 'Healing focus restores extra equal to half Lore ranks.', parent: 'composed', prereq: { skill: 'dis', rank: 2 } },
-    //         { id: 'sage_counsel', name: 'Sage Counsel', type: 'Special', desc: 'Grant Rousing Presence when Aiding.', parent: 'stalwart_presence', prereq: { skill: 'lore', rank: 3 } },
-    //         { id: 'inspired_zeal', name: 'Inspired Zeal', type: 'Special', desc: 'Allies recover focus when another uses Determined.', parent: 'applied_motivation', prereq: { skill: 'dis', rank: 3 } }
-    //       ],
-    //       mentor: [
-    //         { id: 'sound_advice', name: 'Sound Advice', type: 'Reaction', desc: 'Use Rousing Presence on ally who failed a test.' },
-    //         { id: 'practical_demonstration', name: 'Practical Demonstration', type: 'Free Action', desc: 'Use Rousing Presence as Fast action after hitting/gaining advantage.', prereq: { skill: 'lead', rank: 1 } },
-    //         { id: 'lessons_in_patience', name: 'Lessons in Patience', type: 'Passive', desc: 'Gain Motivational Speech expertise. Rousing Presence restores 1 focus.', parent: 'sound_advice', prereq: { skill: 'dis', rank: 2 } },
-    //         { id: 'mighty', name: 'Mighty', type: 'Passive', desc: 'Extra damage per action spent.' },
-    //         { id: 'instill_confidence', name: 'Instill Confidence', type: 'Special', desc: 'Rousing Presence makes an ally Focused instead of Determined.', parent: 'lessons_in_patience' },
-    //         { id: 'guiding_oration', name: 'Guiding Oration', type: 'Passive', desc: 'Ally gets advantage on next test vs your target.', parent: 'mighty', prereq: { skill: 'lead', rank: 2 } },
-    //         { id: 'foresight_mentor', name: 'Foresight', type: 'Passive', desc: 'Gain an additional Reaction each turn.', parent: 'instill_confidence', prereq: { skill: 'dis', rank: 3 } },
-    //         { id: 'rallying_shout', name: 'Rallying Shout', type: 'Passive', desc: 'Rousing Presence can revive Unconscious ally.', parent: 'guiding_oration', prereq: { skill: 'lead', rank: 3 } }
-    //       ]
-    //     }
-    //   },
-    //   hunter: {
-    //     specialties: ["Archer", "Assassin", "Tracker"],
-    //     startingTalent: "Seek Quarry",
-    //     startingTalentType: "Special",
-    //     startingTalentDesc: "Gain advantage on tests to find, attack, and study quarry.",
-    //     talentTrees: {
-    //       archer: [
-    //         { id: 'tagging_shot', name: 'Tagging Shot', type: '3 Actions', desc: 'Ranged attack marks target as quarry.', prereq: { skill: 'perc', rank: 2 } },
-    //         { id: 'combat_training', name: 'Combat Training', type: 'Special', desc: 'Gain expertise. Graze without focus once per round.' },
-    //         { id: 'sharp_eye', name: 'Sharp Eye', type: 'Special', desc: 'Identify target stats or resource status.', parent: 'tagging_shot' },
-    //         { id: 'steady_aim', name: 'Steady Aim', type: '1 Action', desc: 'Increase range and deal extra damage equal to Perception ranks.', parent: 'combat_training', prereq: { skill: 'agi', rank: 1 } },
-    //         { id: 'exploit_weakness', name: 'Exploit Weakness', type: 'Free Action', desc: 'Advantage on quarry without action.', parent: 'sharp_eye', prereq: { skill: 'perc', rank: 3 } },
-    //         { id: 'backstep', name: 'Backstep', type: 'Free Action', desc: 'Disengage after ranged attack.', parent: 'steady_aim', prereq: { skill: 'agi', rank: 2 } },
-    //         { id: 'unrelenting_salvo', name: 'Unrelenting Salvo', type: 'Passive', desc: 'Strike quarry multiple times per turn.', parent: 'exploit_weakness', prereq: { skill: 'agi', rank: 3 } },
-    //         { id: 'hardy', name: 'Hardy', type: 'Passive', desc: 'Gain +1 max health per level.', parent: 'backstep' }
-    //       ],
-    //       assassin: [
-    //         { id: 'startling_blow', name: 'Startling Blow', type: '1 Action', desc: 'Unarmed attack Surprises target.', prereq: { skill: 'st', rank: 1 } },
-    //         { id: 'killing_edge', name: 'Killing Edge', type: 'Passive', desc: 'Expertises. Weapons gain Deadly and Quickdraw.', prereq: { skill: 'perc', rank: 2 } },
-    //         { id: 'fatal_thrust', name: 'Fatal Thrust', type: '2 Actions', desc: 'Heavy bonus damage vs unsuspecting target.', parent: 'startling_blow', prereq: { skill: 'perc', rank: 3 } },
-    //         { id: 'shadowing', name: 'Shadowing', type: 'Special', desc: 'Avoid notice, designate quarry.', parent: 'killing_edge', prereq: { skill: 'st', rank: 2 } },
-    //         { id: 'mighty', name: 'Mighty', type: 'Passive', desc: 'Extra damage per action spent.' },
-    //         { id: 'cold_eyes', name: 'Cold Eyes', type: 'Passive', desc: 'Recover focus when quarry defeated.', parent: 'shadowing' },
-    //         { id: 'swift_strikes', name: 'Swift Strikes', type: '1 Action', desc: 'Make second strike with same weapon.', parent: 'mighty' },
-    //         { id: 'sidestep', name: 'Sidestep', type: 'Special', desc: 'Extra reaction to Dodge without heavy armor.', parent: 'cold_eyes', prereq: { skill: 'st', rank: 3 } }
-    //       ],
-    //       tracker: [
-    //         { id: 'deadly_trap', name: 'Deadly Trap', type: '2 Actions', desc: 'Conceal Immobilizing or impaling traps.', prereq: { skill: 'surv', rank: 1 } },
-    //         { id: 'animal_bond', name: 'Animal Bond', type: 'Special', desc: 'Defenses +1 near companion. Commands.' },
-    //         { id: 'experienced_trapper', name: 'Experienced Trapper', type: 'Special', desc: 'Foraging and improved traps.', parent: 'deadly_trap', prereq: { skill: 'perc', rank: 2 } },
-    //         { id: 'protective_bond', name: 'Protective Bond', type: '1 Action', desc: 'Companion protects ally.', parent: 'animal_bond' },
-    //         { id: 'surefooted', name: 'Surefooted', type: 'Passive', desc: 'Movement +10. Reduce falling damage.', parent: 'experienced_trapper' },
-    //         { id: 'feral_connection', name: 'Feral Connection', type: 'Passive', desc: 'Companion health and test bonuses.', parent: 'protective_bond', prereq: { skill: 'surv', rank: 2 } },
-    //         { id: 'hunters_edge', name: 'Hunter\'s Edge', type: 'Passive', desc: 'Companion advantage and improved traps.', parent: 'surefooted', prereq: { skill: 'surv', rank: 3 } },
-    //         { id: 'pack_hunting', name: 'Pack Hunting', type: 'Reaction', desc: 'Ally damage bonus vs quarry.', parent: 'feral_connection', prereq: { skill: 'perc', rank: 3 } }
-    //       ]
-    //     }
-    //   },
-    //   leader: {
-    //     specialties: ["Champion", "Officer", "Politico"],
-    //     startingTalent: "Decisive Command",
-    //     startingTalentType: "1 Action",
-    //     startingTalentDesc: "Grant ally command die.",
-    //     talentTrees: {
-    //       champion: [
-    //         { id: 'combat_coordination', name: 'Combat Coordination', type: 'Free Action', desc: 'Action economy for Decisive Command.', prereq: { skill: 'lead', rank: 2 } },
-    //         { id: 'valiant_intervention', name: 'Valiant Intervention', type: '1 Action', desc: 'Protect ally with Athletics.', prereq: { skill: 'ath', rank: 1 } },
-    //         { id: 'imposing_posture', name: 'Imposing Posture', type: 'Passive', desc: 'Disorient enemies in reach.', parent: 'combat_coordination', prereq: { skill: 'ath', rank: 2 } },
-    //         { id: 'hardy', name: 'Hardy', type: 'Passive', desc: 'Health bonus.' },
-    //         { id: 'mighty', name: 'Mighty', type: 'Passive', desc: 'Damage bonus.' },
-    //         { id: 'resolute_stand', name: 'Resolute Stand', type: 'Special', desc: 'Improved tanking.', parent: 'hardy', prereq: { skill: 'ath', rank: 1 } },
-    //         { id: 'resilient_hero', name: 'Resilient Hero', type: 'Reaction', desc: 'Avoid drop to 0 health.', parent: 'mighty', prereq: { skill: 'ath', rank: 3 } },
-    //         { id: 'demonstrative_command', name: 'Demonstrative Command', type: 'Special', desc: 'Improved command die.', parent: 'resolute_stand', prereq: { skill: 'lead', rank: 2 } }
-    //       ],
-    //       officer: [
-    //         { id: 'composed', name: 'Composed', type: 'Passive', desc: 'Focus bonus.' },
-    //         { id: 'through_the_fray', name: 'Through the Fray', type: '1 Action', desc: 'Ally action economy.', prereq: { skill: 'pers', rank: 1 } },
-    //         { id: 'well_supplied', name: 'Well Supplied', type: 'Special', desc: 'Expertise and social bonuses.', parent: 'composed', prereq: { skill: 'pers', rank: 2 } },
-    //         { id: 'customary_garb', name: 'Customary Garb', type: 'Passive', desc: 'Defense bonus.' },
-    //         { id: 'relentless_march', name: 'Relentless March', type: 'Passive', desc: 'Improved command.', parent: 'well_supplied', prereq: { skill: 'pers', rank: 3 } },
-    //         { id: 'confident_command', name: 'Confident Command', type: 'Special', desc: 'Improved command die.', parent: 'customary_garb', prereq: { skill: 'lead', rank: 2 } },
-    //         { id: 'synchronized_assault', name: 'Synchronized Assault', type: '2 Actions', desc: 'Team strike.', parent: 'relentless_march', prereq: { skill: 'lead', rank: 3 } },
-    //         { id: 'authority', name: 'Authority', type: 'Passive', desc: 'Range/Target bonus.', parent: 'confident_command' }
-    //       ],
-    //       politico: [
-    //         { id: 'cutthroat_tactics', name: 'Cutthroat Tactics', type: 'Special', desc: 'Stakes and focus recovery.', prereq: { skill: 'decp', rank: 1 } },
-    //         { id: 'tactical_ploy', name: 'Tactical Ploy', type: '1 Action', desc: 'Target penalties.' },
-    //         { id: 'rumormonger', name: 'Rumormonger', type: 'Special', desc: 'Expertise and misinformation.', parent: 'cutthroat_tactics' },
-    //         { id: 'well_dressed', name: 'Well Dressed', type: 'Special', desc: 'Fashion and social bonus.' },
-    //         { id: 'baleful', name: 'Baleful', type: 'Passive', desc: 'Resistance penalty.', parent: 'rumormonger' },
-    //         { id: 'set_at_odds', name: 'Set at Odds', type: '2 Actions', desc: 'Provoke infighting.', parent: 'well_dressed', prereq: { skill: 'lead', rank: 3 } },
-    //         { id: 'shrewd_command', name: 'Shrewd Command', type: 'Special', desc: 'Improved command die.', parent: 'baleful', prereq: { skill: 'lead', rank: 2 } },
-    //         { id: 'grand_deception', name: 'Grand Deception', type: '2 Actions', desc: 'Alter reality via ruse.', parent: 'set_at_odds', prereq: { skill: 'decp', rank: 3 } }
-    //       ]
-    //     }
-    //   },
-    //   scholar: {
-    //     specialties: ["Artifabrian", "Strategist", "Surgeon", "Devotary of Thirst"],
-    //     startingTalent: "Erudition",
-    //     startingTalentType: "Special",
-    //     startingTalentDesc: "Temporary expertises and ranks.",
-    //     talentTrees: {
-    //       artifabrian: [
-    //         { id: 'efficient_engineer', name: 'Efficient Engineer', type: 'Passive', desc: 'Crafting efficiency.', prereq: { skill: 'cr', rank: 1 } },
-    //         { id: 'prized_acquisition', name: 'Prized Acquisition', type: 'Special', desc: 'Fabrial crafting.' },
-    //         { id: 'deep_study', name: 'Deep Study', type: 'Passive', desc: 'Improved Erudition.', parent: 'efficient_engineer' },
-    //         { id: 'inventive_design', name: 'Inventive Design', type: 'Passive', desc: 'Improved fabrial tier.', parent: 'prized_acquisition', prereq: { skill: 'cr', rank: 2 } },
-    //         { id: 'fine_handiwork', name: 'Fine Handiwork', type: 'Special', desc: 'Crafting cost reduction.', parent: 'deep_study' },
-    //         { id: 'overcharge', name: 'Overcharge', type: 'Special', desc: 'Action economy for Strike.', parent: 'inventive_design', prereq: { skill: 'cr', rank: 3 } },
-    //         { id: 'experimental_tinkering', name: 'Experimental Tinkering', type: 'Special', desc: 'Fast crafting.', parent: 'fine_handiwork' },
-    //         { id: 'overwhelm_details', name: 'Overwhelm with Details', type: 'Special', desc: 'Lore modifier bonus.', parent: 'overcharge', prereq: { skill: 'lore', rank: 3 } }
-    //       ],
-    //       strategist: [
-    //         { id: 'strategize', name: 'Strategize', type: 'Special', desc: 'Grant advantage to ally.', prereq: { skill: 'ded', rank: 1 } },
-    //         { id: 'mind_body', name: 'Mind and Body', type: 'Passive', desc: 'Skill/Expertise bonus.' },
-    //         { id: 'composed', name: 'Composed', type: 'Passive', desc: 'Focus bonus.', parent: 'strategize' },
-    //         { id: 'know_your_moment', name: 'Know Your Moment', type: 'Passive', desc: 'Defense bonus.', parent: 'mind_body', prereq: { skill: 'ded', rank: 2 } },
-    //         { id: 'deep_contemplation', name: 'Deep Contemplation', type: '1 Action', desc: 'Erudition reassignment.', parent: 'composed', prereq: { skill: 'lore', rank: 2 } },
-    //         { id: 'keen_insight', name: 'Keen Insight', type: 'Passive', desc: 'Debuff target.', parent: 'know_your_moment' },
-    //         { id: 'contingency', name: 'Contingency', type: 'Reaction', desc: 'Remove complications.', parent: 'deep_contemplation', prereq: { skill: 'lore', rank: 3 } },
-    //         { id: 'turning_point', name: 'Turning Point', type: '1 Action', desc: 'Team momentum.', parent: 'keen_insight', prereq: { skill: 'ded', rank: 3 } }
-    //       ],
-    //       surgeon: [
-    //         { id: 'field_medicine', name: 'Field Medicine', type: '1 Action', desc: 'Healing via Medicine.', prereq: { skill: 'med', rank: 1 } },
-    //         { id: 'emotional_intelligence', name: 'Emotional Intelligence', type: 'Passive', desc: 'Diagnosis expertise.' },
-    //         { id: 'anatomical_insight', name: 'Anatomical Insight', type: 'Special', desc: 'Exhaust target.', parent: 'field_medicine' },
-    //         { id: 'collected', name: 'Collected', type: 'Passive', desc: 'Defense bonus.', parent: 'emotional_intelligence' },
-    //         { id: 'swift_healer', name: 'Swift Healer', type: 'Free Action', desc: 'Improved field medicine.', parent: 'anatomical_insight', prereq: { skill: 'med', rank: 2 } },
-    //         { id: 'applied_medicine', name: 'Applied Medicine', type: 'Passive', desc: 'Healing bonus.', parent: 'collected', prereq: { skill: 'lore', rank: 2 } },
-    //         { id: 'ongoing_care', name: 'Ongoing Care', type: 'Special', desc: 'Expertise and condition removal.', parent: 'swift_healer', prereq: { skill: 'lore', rank: 3 } },
-    //         { id: 'resuscitation', name: 'Resuscitation', type: 'Special', desc: 'Revive ally.', parent: 'applied_medicine', prereq: { skill: 'med', rank: 3 } }
-    //       ],
-    //       devotary_of_thirst: [
-    //         { id: 'affairudition', name: 'Affairudition', type: 'Special', desc: 'Seduction expertise.', parent: 'affairudition' },
-    //         { id: 'charismatic', name: 'Charismatic', type: 'Passive', desc: 'Social bonus.', prereq: { skill: 'pers', rank: 1 } },
-    //         { id: 'for_the_plot', name: 'For the Plot', type: 'Special', desc: 'Raise stakes.', parent: 'affairudition', prereq: { skill: 'lore', rank: 1 } },
-    //         { id: 'overwhelm_senses', name: 'Overwhelm Senses', type: 'Free Action', desc: 'Disorient target.', parent: 'charismatic', prereq: { skill: 'lore', rank: 2 } },
-    //         { id: 'its_complicated', name: 'It\'s Complicated', type: 'Special', desc: 'Target complication.', parent: 'for_the_plot', prereq: { skill: 'pers', rank: 2 } },
-    //         { id: 'smoldering_graze', name: 'Smoldering Graze', type: 'Passive', desc: 'Damage bonus.', parent: 'overwhelm_senses', prereq: { skill: 'pers', rank: 3 } },
-    //         { id: 'pillow_talk', name: 'Pillow Talk', type: 'Passive', desc: 'Specialist expertise.', parent: 'its_complicated', prereq: { skill: 'pers', rank: 3 } },
-    //         { id: 'most_ardently', name: 'Most Ardently', type: 'Passive', desc: 'Social status.', parent: 'smoldering_graze', prereq: { skill: 'lore', rank: 3 } }
-    //       ]
-    //     }
-    //   },
-    //   warrior: {
-    //     specialties: ["Duelist", "Shardbearer", "Soldier"],
-    //     startingTalent: "Vigilant Stance",
-    //     startingTalentType: "1 Action",
-    //     startingTalentDesc: "Enter Vigilant Stance: Reduce focus cost of reactions.",
-    //     talentTrees: {
-    //       shardbearer: [
-    //         { id: 'shard_training', name: 'Shard Training', type: 'Special', desc: 'Expertises and charges.' },
-    //         { id: 'stonestance', name: 'Stonestance', type: '1 Action', desc: 'Defense/Protection stance.' },
-    //         { id: 'windstance', name: 'Windstance', type: '1 Action', desc: 'Agility stance.', parent: 'shard_training', prereq: { skill: 'perc', rank: 1 } },
-    //         { id: 'mighty', name: 'Mighty', type: 'Passive', desc: 'Extra damage.' },
-    //         { id: 'shattering_blow', name: 'Shattering Blow', type: 'Special', desc: 'Push and armor depletion.', parent: 'windstance', prereq: { skill: 'perc', rank: 2 } },
-    //         { id: 'bloodstance', name: 'Bloodstance', type: '1 Action', desc: 'Aggressive stance.', parent: 'mighty', prereq: { skill: 'ath', rank: 2 } },
-    //         { id: 'precise_parry', name: 'Precise Parry', type: 'Reaction', desc: 'Damage reduction.', parent: 'shattering_blow', prereq: { skill: 'perc', rank: 3 } },
-    //         { id: 'meteoric_leap', name: 'Meteoric Leap', type: '2 Actions', desc: 'Leap and attack.', parent: 'bloodstance', prereq: { skill: 'ath', rank: 3 } }
-    //       ],
-    //       soldier: [
-    //         { id: 'cautious_advance', name: 'Cautious Advance', type: 'Free Action', desc: 'Movement and Brace.', prereq: { skill: 'dis', rank: 1 } },
-    //         { id: 'combat_training', name: 'Combat Training', type: 'Special', desc: 'Expertise and graze.' },
-    //         { id: 'defensive_position', name: 'Defensive Position', type: 'Passive', desc: 'Improved Brace.', parent: 'cautious_advance', prereq: { skill: 'ath', rank: 2 } },
-    //         { id: 'devastating_blow', name: 'Devastating Blow', type: 'Free Action', desc: 'Bonus damage.', parent: 'combat_training', prereq: { skill: 'ath', rank: 3 } },
-    //         { id: 'formation_drills', name: 'Formation Drills', type: 'Passive', desc: 'Team Brace.', parent: 'defensive_position', prereq: { skill: 'dis', rank: 2 } },
-    //         { id: 'hardy', name: 'Hardy', type: 'Passive', desc: 'Health bonus.', parent: 'devastating_blow' },
-    //         { id: 'wary', name: 'Wary', type: 'Passive', desc: 'Surprise immunity.', parent: 'formation_drills', prereq: { skill: 'dis', rank: 3 } },
-    //         { id: 'swift_strikes', name: 'Swift Strikes', type: '1 Action', desc: 'Double strike.', parent: 'hardy' }
-    //       ],
-    //       duelist: [
-    //         { id: 'practiced_kata', name: 'Practiced Kata', type: 'Special', desc: 'Stance interaction.' },
-    //         { id: 'flamestance', name: 'Flamestance', type: '1 Action', desc: 'Solo duel stance.', prereq: { skill: 'intm', rank: 1 } },
-    //         { id: 'ironstance', name: 'Ironstance', type: '1 Action', desc: 'Reaction stance.', parent: 'practiced_kata', prereq: { skill: 'ath', rank: 2 } },
-    //         { id: 'signature_weapon', name: 'Signature Weapon', type: 'Passive', desc: 'Weapon focus.', parent: 'flamestance' },
-    //         { id: 'surefooted', name: 'Surefooted', type: 'Passive', desc: 'Movement rate bonus.', parent: 'ironstance' },
-    //         { id: 'feinting_strike', name: 'Feinting Strike', type: '1 Action', desc: 'Resource depletion.', parent: 'signature_weapon', prereq: { skill: 'intm', rank: 2 } },
-    //         { id: 'vinestance', name: 'Vinestance', type: '1 Action', desc: 'Defense/Counter stance.', parent: 'surefooted', prereq: { skill: 'ath', rank: 3 } },
-    //         { id: 'wits_end', name: 'Wit\'s End', type: 'Free Action', desc: 'Finishing move.', parent: 'feinting_strike', prereq: { skill: 'intm', rank: 3 } }
-    //       ]
-    //     }
-    //   }
-    // };
-
     const radiantPathsData = {
       dustbringer: {
         spren: "Ashspren",
@@ -1903,6 +1662,7 @@
         const modEl = document.getElementById(`mod-${s.id}`);
         if (modEl) modEl.innerText = `+${mod}`;
       });
+      autoSaveCharacter();
     }
 
     function exportCharacter() {
@@ -1937,6 +1697,77 @@
       a.href = url;
       a.download = `${charName.replace(/\s+/g, '_')}_Stormlight_Char.json`;
       a.click();
+    }
+
+    function autoSaveCharacter() {
+      const data = {
+        charName: document.getElementById('charName').value,
+        ancestry: document.getElementById('ancestry').value,
+        heroicPath: document.getElementById('heroicPath').value,
+        radiantOrder: document.getElementById('radiantOrder').value,
+        specialty: document.getElementById('specialty').value,
+        level: document.getElementById('level').value,
+        curH: document.getElementById('curH').value,
+        curF: document.getElementById('curF').value,
+        curI: document.getElementById('curI').value,
+        maxI: document.getElementById('maxI') ? document.getElementById('maxI').innerText : 0,
+        str: document.getElementById('str').value,
+        spd: document.getElementById('spd').value,
+        int: document.getElementById('int').value,
+        wil: document.getElementById('wil').value,
+        awa: document.getElementById('awa').value,
+        pre: document.getElementById('pre').value,
+        deflect: document.getElementById('deflect').value,
+        expertises: document.getElementById('expertises').value,
+        skillRanks: skillRanks,
+        chosenTalents: chosenTalents,
+        unlockedTalentIds: Array.from(unlockedTalentIds)
+      }
+      localStorage.setItem('cosmere_rpg_autosave', JSON.stringify(data));
+    }
+
+    function autoLoadCharacter() {
+      const savedData = localStorage.getItem('cosmere_rpg_autosave')
+      if (!savedData) { return };
+      try {
+        const data = JSON.parse(savedData);
+        // Apply values to inputs
+        const simpleFields = ['charName', 'ancestry', 'level', 'curH', 'curF', 'curI', 'str', 'spd', 'int', 'wil', 'awa', 'pre', 'deflect', 'expertises'];
+        simpleFields.forEach(field => {
+          if (data[field] !== undefined) document.getElementById(field).value = data[field];
+        });
+
+        // Order matters for dependent selects
+        if (data.heroicPath) {
+          document.getElementById('heroicPath').value = data.heroicPath;
+          updateSpecialties();
+        }
+        if (data.radiantOrder) {
+          document.getElementById('radiantOrder').value = data.radiantOrder;
+          updateRadiantTrees();
+        }
+        if (data.specialty) document.getElementById('specialty').value = data.specialty;
+
+        // Restore state objects
+        if (data.skillRanks) Object.assign(skillRanks, data.skillRanks);
+        if (data.chosenTalents) {
+          for (let k in chosenTalents) delete chosenTalents[k];
+          Object.assign(chosenTalents, data.chosenTalents);
+        }
+        if (data.unlockedTalentIds) {
+          unlockedTalentIds.clear();
+          data.unlockedTalentIds.forEach(id => unlockedTalentIds.add(id));
+        }
+
+        // Refresh the UI
+        updateTalentSlots();
+        updateSpecialtyTree();
+        updateRadiantTrees();
+        initSkills();
+        updateUI();
+      } catch (err) {
+        console.error("Autoload failed:", err);
+      }
     }
 
     function importCharacter(event) {
@@ -1992,6 +1823,7 @@
     }
 
     window.onload = () => {
+      autoLoadCharacter();
       initSkills();
       document.querySelectorAll('input, textarea, select').forEach(i => i.addEventListener('input', () => {
         updateUI();
