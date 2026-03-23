@@ -1796,7 +1796,9 @@
           unlockedTalentIds.clear();
           data.unlockedTalentIds.forEach(id => unlockedTalentIds.add(id));
         }
-
+        simpleFields.forEach(field => {
+          if (data[field] !== undefined) document.getElementById(field).value = data[field];
+        });
         // Refresh the UI
         updateTalentSlots();
         updateSpecialtyTree();
