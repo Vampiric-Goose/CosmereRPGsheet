@@ -941,6 +941,13 @@
       });
     }
 
+    function humanizeKey(key) {
+      return key
+        .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, c => c.toUpperCase())
+        .trim();
+    }
     function renderDots(skillId) {
       const dotContainer = document.getElementById(`dots-${skillId}`);
       if (!dotContainer) return;
@@ -1008,6 +1015,23 @@
       if (!pathKey || !specKey || !heroicPathsData[pathKey].talentTrees[specKey] || heroicPathsData[pathKey].talentTrees[specKey].length === 0) {
         if (view) view.innerHTML = '';
         return;
+      }
+
+      let effectiveKey = specKey;
+      if (!heroicPathsData[pathKey].talentTrees[specKey]) {
+        const selectedOption = specSelect.options[specSelect.selectedIndex];
+        if (selectedOption) {
+          const displayName = selectedOption.textContent || '';
+          const normDisplay = displayName.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+          for (const k in heroicPathsData[pathKey].talentTrees) {
+            const normK = humanizeKey(k).toLowerCase().replace(/[^a-z0-9]/g, '');
+            if (normK === normDisplay || k.toLowerCase().replace(/[^a-z0-9]/g, '') === normDisplay) {
+              effectiveKey = k;
+              break;
+            }
+          }
+        }
       }
 
       if (view) {

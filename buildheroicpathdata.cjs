@@ -23,7 +23,7 @@ function buildHeroicData() {
         for (const specFile of files) {
             if (!specFile.endsWith('.json')) continue;
 
-            const specKey = specFile.replace('.json', '');
+            const specKey = specFile.replace('.json', '').toLowerCase().replace(/\s+/g, '_');
             const metaPath = path.join(pathDir, specFile);
             console.log(`Reading JSON: ${metaPath}`);
             const raw = fs.readFileSync(metaPath, 'utf8');
