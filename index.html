@@ -817,6 +817,45 @@
       ]
     };
 
+    let talentDataById = {};
+
+    function buildTalentDataMap() {
+      talentDataById = {};
+      // Heroic (all paths/specialties)
+      for (const pathKey in heroicPathsData) {
+        for (const specKey in (heroicPathsData[pathKey]?.talentTrees || {})) {
+          const tree = heroicPathsData[pathKey].talentTrees[specKey];
+          tree.forEach(t => {
+            if (t.id && !talentDataById[t.id]) {
+              talentDataById[t.id] = { ...t }; // shallow copy for safety
+            }
+          });
+        }
+      }
+      // Radiant + surges
+      for (const orderKey in radiantPathsData) {
+        const rData = radiantPathsData[orderKey];
+        const firstId = `first_ideal_${orderKey}`;
+        if (!talentDataById[firstId]) {
+          talentDataById[firstId] = {
+            id: firstId,
+            name: rData.startingTalent,
+            type: rData.startingTalentType,
+            desc: rData.startingTalentDesc,
+            prereq: { level: 2 }
+          };
+        }
+        rData.tree.forEach(t => {
+          if (t.id && !talentDataById[t.id]) talentDataById[t.id] = { ...t };
+        });
+        rData.surges.forEach(surgeKey => {
+          (surgesData[surgeKey] || []).forEach(t => {
+            if (t.id && !talentDataById[t.id]) talentDataById[t.id] = { ...t };
+          });
+        });
+      }
+    }
+
     const skills = [
       { id: "ath", name: "Athletics", attr: "str" }, { id: "hw", name: "Heavy Weaponry", attr: "str" },
       { id: "agi", name: "Agility", attr: "spd" }, { id: "lw", name: "Light Weaponry", attr: "spd" },
@@ -1044,43 +1083,32 @@
         const card = document.createElement('div');
         const isUnlocked = unlockedTalentIds.has(talent.id);
 
+        const authoritative = talentDataById[talent.id] || talent;
         let isLocked = false;
         let prereqLabel = "";
 
-        if (talent.prereq && talent.prereq.level) {
-          if (currentLevel < talent.prereq.level) {
+        if (authoritative.prereq && authoritative.prereq.level) {
+          if (currentLevel < authoritative.prereq.level) {
             isLocked = true;
-            prereqLabel = `Requires Level ${talent.prereq.level}+`;
+            prereqLabel = `Requires Level ${authoritative.prereq.level}+`;
           }
         }
-
-        if (talent.prereq && talent.prereq.skill) {
-          const currentRank = skillRanks[talent.prereq.skill] || 0;
-          if (currentRank < talent.prereq.rank) {
+        if (authoritative.prereq && authoritative.prereq.skill) {
+          const currentRank = skillRanks[authoritative.prereq.skill] || 0;
+          if (currentRank < authoritative.prereq.rank) {
             isLocked = true;
-            const skillObj = skills.find(s => s.id === talent.prereq.skill);
-            const skillName = skillObj ? skillObj.name : talent.prereq.skill;
-            const addition = `Requires ${skillName} ${talent.prereq.rank}+`;
+            const skillObj = skills.find(s => s.id === authoritative.prereq.skill);
+            const skillName = skillObj ? skillObj.name : authoritative.prereq.skill;
+            const addition = `Requires ${skillName} ${authoritative.prereq.rank}+`;
             prereqLabel = prereqLabel ? `${prereqLabel} & ${addition}` : addition;
           }
         }
-
-        if (talent.parent && !unlockedTalentIds.has(talent.parent)) {
+        if (authoritative.parent && !unlockedTalentIds.has(authoritative.parent)) {
           isLocked = true;
-          const parentObj = getTalentById(talent.parent);
+          const parentObj = getTalentById(authoritative.parent);
           const parentName = parentObj ? parentObj.name : "Parent Talent";
           const addition = `Requires ${parentName}`;
           prereqLabel = prereqLabel ? `${prereqLabel} & ${addition}` : addition;
-        }
-
-        if (basePrereqId && !talent.parent && !talent.prereq) {
-          if (!unlockedTalentIds.has(basePrereqId)) {
-            isLocked = true;
-            const pObj = getTalentById(basePrereqId);
-            const pName = pObj ? pObj.name : "First Ideal";
-            const addition = `Requires ${pName}`;
-            prereqLabel = prereqLabel ? `${prereqLabel} & ${addition}` : addition;
-          }
         }
 
         card.className = `talent-card ${isRadiant ? 'radiant-card' : ''} ${isUnlocked ? 'selected' : ''} ${isLocked ? 'locked' : ''}`;
@@ -1299,63 +1327,47 @@
     }
 
     function enforceTalentDependencies() {
-      let changed = false;
+      function enforceTalentDependencies() {
+        let changed = false;
+        const currentIdsInSlots = new Set();
+        for (let k in chosenTalents) if (chosenTalents[k].id) currentIdsInSlots.add(chosenTalents[k].id);
 
-      const allTrees = [];
-      for (const p in heroicPathsData) {
-        for (const s in heroicPathsData[p].talentTrees) {
-          allTrees.push(...heroicPathsData[p].talentTrees[s]);
-        }
-      }
-      for (const p in radiantPathsData) {
-        allTrees.push({ id: `first_ideal_${p}`, name: radiantPathsData[p].startingTalent });
-        allTrees.push(...radiantPathsData[p].tree);
-      }
-      for (const s in surgesData) {
-        allTrees.push(...surgesData[s]);
-      }
-
-      const currentIdsInSlots = new Set();
-      for (let k in chosenTalents) if (chosenTalents[k].id) currentIdsInSlots.add(chosenTalents[k].id);
-
-      for (let key in chosenTalents) {
-        const t = chosenTalents[key];
-        if (t.id) {
-          const data = allTrees.find(x => x.id === t.id);
-          if (data && data.parent) {
-            if (!currentIdsInSlots.has(data.parent)) {
-              removeUnlockedTalent(t.id);
-              chosenTalents[key] = { id: null, name: '', desc: '', isRadiant: false };
-              changed = true;
-            }
-          }
-
-          if (data && !data.parent && !data.prereq) {
-            let isSurge = false;
-            let relatedOrder = null;
-            for (const s in surgesData) {
-              if (surgesData[s].find(x => x.id === t.id)) {
-                isSurge = true;
-                const activeOrder = document.getElementById('radiantOrder').value;
-                if (activeOrder && radiantPathsData[activeOrder].surges.includes(s)) {
-                  relatedOrder = activeOrder;
-                }
-              }
-            }
-
-            if (isSurge && relatedOrder) {
-              const firstId = `first_ideal_${relatedOrder}`;
-              if (!currentIdsInSlots.has(firstId)) {
+        for (let key in chosenTalents) {
+          const t = chosenTalents[key];
+          if (t.id) {
+            const data = talentDataById[t.id];
+            if (data && data.parent) {
+              if (!currentIdsInSlots.has(data.parent)) {
                 removeUnlockedTalent(t.id);
                 chosenTalents[key] = { id: null, name: '', desc: '', isRadiant: false };
                 changed = true;
               }
             }
+            if (data && !data.parent && !data.prereq) {
+              let isSurge = false;
+              let relatedOrder = null;
+              for (const s in surgesData) {
+                if (surgesData[s].find(x => x.id === t.id)) {
+                  isSurge = true;
+                  const activeOrder = document.getElementById('radiantOrder').value;
+                  if (activeOrder && radiantPathsData[activeOrder].surges.includes(s)) {
+                    relatedOrder = activeOrder;
+                  }
+                }
+              }
+              if (isSurge && relatedOrder) {
+                const firstId = `first_ideal_${relatedOrder}`;
+                if (!currentIdsInSlots.has(firstId)) {
+                  removeUnlockedTalent(t.id);
+                  chosenTalents[key] = { id: null, name: '', desc: '', isRadiant: false };
+                  changed = true;
+                }
+              }
+            }
           }
         }
+        if (changed) enforceTalentDependencies(); // recurse once if anything changed
       }
-
-      if (changed) enforceTalentDependencies();
     }
 
     function updateTalentSlots() {
@@ -1450,31 +1462,33 @@
     }
 
     function getTalentById(id) {
-      for (const pathKey in heroicPathsData) {
-        for (const specKey in heroicPathsData[pathKey].talentTrees) {
-          const found = heroicPathsData[pathKey].talentTrees[specKey].find(t => t.id === id);
-          if (found) return found;
-        }
-      }
-      for (const p in radiantPathsData) {
-        if (`first_ideal_${p}` === id) {
-          return {
-            id: id,
-            name: radiantPathsData[p].startingTalent,
-            type: radiantPathsData[p].startingTalentType,
-            desc: radiantPathsData[p].startingTalentDesc,
-            prereq: { level: 2 }
-          }
-        }
-        const found = radiantPathsData[p].tree.find(t => t.id === id);
-        if (found) return found;
-      }
-      for (const s in surgesData) {
-        const found = surgesData[s].find(t => t.id === id);
-        if (found) return found;
-      }
-      return null;
+      // for (const pathKey in heroicPathsData) {
+      //   for (const specKey in heroicPathsData[pathKey].talentTrees) {
+      //     const found = heroicPathsData[pathKey].talentTrees[specKey].find(t => t.id === id);
+      //     if (found) return found;
+      //   }
+      // }
+      // for (const p in radiantPathsData) {
+      //   if (`first_ideal_${p}` === id) {
+      //     return {
+      //       id: id,
+      //       name: radiantPathsData[p].startingTalent,
+      //       type: radiantPathsData[p].startingTalentType,
+      //       desc: radiantPathsData[p].startingTalentDesc,
+      //       prereq: { level: 2 }
+      //     }
+      //   }
+      //   const found = radiantPathsData[p].tree.find(t => t.id === id);
+      //   if (found) return found;
+      // }
+      // for (const s in surgesData) {
+      //   const found = surgesData[s].find(t => t.id === id);
+      //   if (found) return found;
+      // }
+      // return null;
+      return talentDataById[id] || null;
     }
+
 
     function openTalentModalForStarting() {
       const pathKey = document.getElementById('heroicPath').value;
@@ -1823,6 +1837,7 @@
     }
 
     window.onload = () => {
+      buildTalentDataMap();
       autoLoadCharacter();
       initSkills();
       document.querySelectorAll('input, textarea, select').forEach(i => i.addEventListener('input', () => {
