@@ -399,10 +399,16 @@
           <!-- Tab Strip -->
           <div class="flex bg-slate-950/40 border-b border-slate-800/50 overflow-x-auto no-scrollbar" id="treeTabStrip">
             <div id="tab-heroic" onclick="switchTreeTab('heroic')" class="tree-tab active">Heroic Path</div>
+            <div class="flex bg-slate-950/40 border-b border-slate-800/50 overflow-x-auto no-scrollbar gap-2 px-2"
+              id="treeTabStrip"></div>
             <div id="tab-spren" onclick="switchTreeTab('spren')" class="tree-tab hidden radiant-tab">Spren
               Bond</div>
+            <div class="flex bg-slate-950/40 border-b border-slate-800/50 overflow-x-auto no-scrollbar gap-2 px-2"
+              id="treeTabStrip"></div>
             <div id="tab-surge1" onclick="switchTreeTab('surge1')" class="tree-tab hidden radiant-tab">Surge
               1</div>
+            <div class="flex bg-slate-950/40 border-b border-slate-800/50 overflow-x-auto no-scrollbar gap-2 px-2"
+              id="treeTabStrip"></div>
             <div id="tab-surge2" onclick="switchTreeTab('surge2')" class="tree-tab hidden radiant-tab">Surge
               2</div>
           </div>
@@ -524,6 +530,56 @@
             class="w-full h-40 bg-slate-900/30 p-2 rounded-lg border border-slate-800 text-sm italic"
             placeholder="Military Lore, Calligraphy, Stonecarving..."></textarea>
         </div>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="stat-card p-6 lg:col-span-1">
+        <h3
+          class="font-serif-header text-purple-400 text-sm uppercase mb-4 tracking-widest border-b border-slate-800 pb-2">
+          Gear & Assets</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="text-[9px] text-slate-500 uppercase font-bold block mb-1">Active Equipment</label>
+            <textarea id="equipment"
+              class="w-full h-32 bg-slate-900/30 p-2 rounded-lg border border-slate-800 text-sm italic p-2 custom-scrollbar"
+              placeholder="Weapons, Armor, Worn items..."></textarea>
+          </div>
+          <div>
+            <label class="text-[9px] text-slate-500 uppercase font-bold block mb-1">Inventory & Riches</label>
+            <textarea id="inventory"
+              class="w-full h-40 bg-slate-900/30 p-2 rounded-lg border border-slate-800 text-sm italic p-2 custom-scrollbar"
+              placeholder="Stored gear, Spheres, valuable assets..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card p-6 lg:col-span-1">
+        <h3
+          class="font-serif-header text-purple-400 text-sm uppercase mb-4 tracking-widest border-b border-slate-800 pb-2">
+          Legacy & Relations</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="text-[9px] text-slate-500 uppercase font-bold block mb-1">Connections</label>
+            <textarea id="connections_notes"
+              class="w-full h-40 bg-slate-900/30 p-2 rounded-lg border border-slate-800 text-sm italic p-2 custom-scrollbar"
+              placeholder="Key NPC allies, Patrons, or organizations..."></textarea>
+          </div>
+          <div>
+            <label class="text-[9px] text-slate-500 uppercase font-bold block mb-1">Character Goals</label>
+            <textarea id="goals"
+              class="w-full h-32 bg-slate-900/30 p-2 rounded-lg border border-slate-800 text-sm italic p-2 custom-scrollbar"
+              placeholder="Personal ambitions, oaths, and campaign objectives..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card p-6 lg:col-span-1">
+        <h3
+          class="font-serif-header text-purple-400 text-sm uppercase mb-4 tracking-widest border-b border-slate-800 pb-2">
+          Adventure Notes</h3>
+        <textarea id="notes"
+          class="w-full h-[360px] bg-slate-900/30 p-2 rounded-lg border border-slate-800 text-sm italic p-2 custom-scrollbar"
+          placeholder="Campaign details, session summaries, or miscellaneous information..."></textarea>
       </div>
     </div>
   </div>
@@ -1724,6 +1780,11 @@
         pre: document.getElementById('pre').value,
         deflect: document.getElementById('deflect').value,
         expertises: document.getElementById('expertises').value,
+        inventory: document.getElementById('inventory').value,
+        equipment: document.getElementById('equipment').value,
+        connections_notes: document.getElementById('connections_notes').value,
+        goals: document.getElementById('goals').value,
+        notes: document.getElementById('notes').value,
         skillRanks: skillRanks,
         chosenTalents: chosenTalents,
         unlockedTalentIds: Array.from(unlockedTalentIds)
@@ -1757,6 +1818,11 @@
         pre: document.getElementById('pre').value,
         deflect: document.getElementById('deflect').value,
         expertises: document.getElementById('expertises').value,
+        inventory: document.getElementById('inventory').value,
+        equipment: document.getElementById('equipment').value,
+        connections_notes: document.getElementById('connections_notes').value,
+        goals: document.getElementById('goals').value,
+        notes: document.getElementById('notes').value,
         skillRanks: skillRanks,
         chosenTalents: chosenTalents,
         unlockedTalentIds: Array.from(unlockedTalentIds)
@@ -1770,7 +1836,7 @@
       try {
         const data = JSON.parse(savedData);
         // Apply values to inputs
-        const simpleFields = ['charName', 'ancestry', 'level', 'curH', 'curF', 'curI', 'str', 'spd', 'int', 'wil', 'awa', 'pre', 'deflect', 'expertises'];
+        const simpleFields = ['charName', 'ancestry', 'level', 'curH', 'curF', 'curI', 'str', 'spd', 'int', 'wil', 'awa', 'pre', 'deflect', 'expertises', 'inventory', 'equipment', 'connections_notes', 'goals', 'notes'];
         simpleFields.forEach(field => {
           if (data[field] !== undefined) document.getElementById(field).value = data[field];
         });
@@ -1842,6 +1908,11 @@
           if (data.pre !== undefined) document.getElementById('pre').value = data.pre;
           if (data.deflect !== undefined) document.getElementById('deflect').value = data.deflect;
           if (data.expertises !== undefined) document.getElementById('expertises').value = data.expertises;
+          if (data.inventory !== undefined) document.getElementById('inventory').value = data.inventory;
+          if (data.equipment !== undefined) document.getElementById('equipment').value = data.equipment;
+          if (data.connections_notes !== undefined) document.getElementById('connections_notes').value = data.connections_notes;
+          if (data.goals !== undefined) document.getElementById('goals').value = data.goals;
+          if (data.notes !== undefined) document.getElementById('notes').value = data.notes;
 
           if (data.skillRanks) Object.assign(skillRanks, data.skillRanks);
           if (data.chosenTalents) {
