@@ -459,6 +459,7 @@
           </div>
         </div>
 
+
         <!-- SKILLS GRID -->
         <div class="stat-card p-6">
           <h3
@@ -467,6 +468,14 @@
           <div id="skillGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-3">
             <!-- Skills will be injected here -->
           </div>
+        </div>
+      </div>
+
+      <div class="stat-card p-6 lg:col-span-12 hidden" id="surgesTracker">
+        <h3 class="font-serif-header text-sky-400 text-sm uppercase mb-6 tracking-widest border-b border-sky-900 pb-2">
+          Active Surges
+        </h3>
+        <div id="surgesGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
         </div>
       </div>
 
@@ -872,6 +881,29 @@
         { id: 'placeholder_adhesion', name: 'Adhesion Surges Pending', type: 'System', desc: 'Surge of Adhesion talents await discovery.' }
       ]
     };
+
+    const surgeBasicEffects = {
+      abrasion: "Spend 1+ Investiture as an action to infuse an object or surface to make it frictionless. Or infuse yourself to Skate as a free action(2 focus) and Slide (one size smaller when squeezing, and advantage to escape pressure/friction restraints).",
+      adhesion: "Spend 1+ Investiture to adhere two unsecured objects within 5 feet of each other (Full Lashing).",
+      cohesion: "Spend 1+ Investiture to infuse an unattended stone object/surface to make it moldable like clay.",
+      division: "Spend 1 Investiture for a melee attack vs Spiritual (3d4 spirit damage). Or destroy an object/area based on size.",
+      gravitation: "Spend 1+ Investiture to change the direction of gravity for a target (Basic Lashing). Fly rate begins at 25 feet.",
+      illumination: "Spend 1+ Investiture to Lightweave a visual/auditory illusion. Simple objects cost 1 Inv/10min. Complex illusions cost 1 Inv/rd.",
+      progression: "Growth (1 Inv): rapidly grow a plant. Regrowth (1+ Inv): heal target 1d4+mod at the start of their turns.",
+      tension: "Spend 1+ Investiture to make a soft object rigid, or grant Hardened Defense (+2 Physical Defense) to a wearer.",
+      transformation: "Soulcast a non-living object into another material. DC and Investiture cost vary by material categories and size.",
+      transportation: "Spend 1+ Investiture to look into the Cognitive Realm to learn emotions, locate characters, or sense Investiture."
+    };
+
+    // Calculates the effect size and die based on the Surge Scaling table
+    function getSurgeScaling(ranks) {
+      if (ranks <= 0) return { size: "None", die: "None" };
+      if (ranks === 1) return { size: "Small (2.5 ft)", die: "d4" };
+      if (ranks === 2) return { size: "Medium (5 ft)", die: "d6" };
+      if (ranks === 3) return { size: "Large (10 ft)", die: "d8" };
+      if (ranks === 4) return { size: "Huge (15 ft)", die: "d10" };
+      return { size: "Gargantuan (20 ft)", die: "d12" };
+    }
 
     let talentDataById = {};
 
@@ -1406,6 +1438,74 @@
       updateUI();
     }
 
+    function updateSurgesUI() {
+      const tracker = document.getElementById('surgesTracker');
+      const grid = document.getElementById('surgesGrid');
+      const orderKey = document.getElementById('radiantOrder').value;
+
+      // Only show if an order is picked and the First Ideal is unlocked
+      if (!orderKey || !unlockedTalentIds.has(`first_ideal_${orderKey}`)) {
+        if (tracker) tracker.classList.add('hidden');
+        if (grid) grid.innerHTML = '';
+        return;
+      }
+
+      if (tracker) tracker.classList.remove('hidden');
+      if (grid) grid.innerHTML = '';
+
+      const rData = radiantPathsData[orderKey];
+      const stats = {
+        str: parseInt(document.getElementById('str').value) || 0,
+        spd: parseInt(document.getElementById('spd').value) || 0,
+        int: parseInt(document.getElementById('int').value) || 0,
+        wil: parseInt(document.getElementById('wil').value) || 0,
+        awa: parseInt(document.getElementById('awa').value) || 0,
+        pre: parseInt(document.getElementById('pre').value) || 0
+      };
+
+      rData.surges.forEach(surgeKey => {
+        const surgeObj = allSurges.find(s => s.id === surgeKey);
+        if (!surgeObj) return;
+
+        const ranks = skillRanks[surgeKey] || 0;
+        const mod = stats[surgeObj.attr] + ranks; // Base stat + ranks
+        const scaling = getSurgeScaling(ranks);
+        const effect = surgeBasicEffects[surgeKey];
+
+        const card = document.createElement('div');
+        card.className = "p-5 border border-sky-500/40 bg-sky-950/30 rounded-xl relative shadow-inner";
+
+        card.innerHTML = `
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center gap-2">
+                    <h4 class="font-serif-header text-sky-400 text-lg uppercase tracking-widest">${surgeObj.name}</h4>
+                    <span class="text-[9px] text-slate-500 uppercase tracking-widest border border-slate-700 px-1 rounded">${surgeObj.attr}</span>
+                </div>
+                <div class="flex items-center gap-1 bg-sky-900/50 border border-sky-500/30 px-3 py-1 rounded shadow-sm">
+                    <span class="text-[10px] text-sky-300 uppercase font-bold">MOD</span>
+                    <span class="text-sm font-mono font-bold text-white">+${mod}</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-4 text-xs">
+                <div class="bg-slate-900/80 p-3 rounded border border-slate-700/50 flex flex-col justify-center">
+                    <span class="block text-[9px] text-slate-500 uppercase font-bold mb-1">Max Size</span>
+                    <span class="font-bold text-emerald-400 text-sm">${scaling.size}</span>
+                </div>
+                <div class="bg-slate-900/80 p-3 rounded border border-slate-700/50 flex flex-col justify-center">
+                    <span class="block text-[9px] text-slate-500 uppercase font-bold mb-1">Effect Die</span>
+                    <span class="font-bold text-red-400 text-sm">${scaling.die}</span>
+                </div>
+            </div>
+
+            <div class="text-xs text-slate-300 leading-relaxed border-l-2 border-sky-500/50 pl-3 italic">
+                ${effect}
+            </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
     function enforceTalentDependencies() {
       function enforceTalentDependencies() {
         let changed = false;
@@ -1756,6 +1856,7 @@
         const modEl = document.getElementById(`mod-${s.id}`);
         if (modEl) modEl.innerText = `+${mod}`;
       });
+      updateSurgesUI();
       autoSaveCharacter();
     }
 
