@@ -193,6 +193,14 @@
             RPG</span>
         </h1>
         <div class="flex gap-3">
+          <button onclick="openCompendium()"
+            class="btn-action bg-sky-600/20 text-sky-400 border border-sky-500/50 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-tighter">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path>
+            </svg>
+            Compendium
+          </button>
           <button onclick="exportCharacter()"
             class="btn-action bg-purple-600/20 text-purple-400 border border-purple-500/50 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-tighter">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -627,8 +635,148 @@
       </div>
     </div>
   </div>
+  <div id="compendiumModal" class="fixed inset-0 modal-overlay flex items-center justify-center z-[100] hidden p-4">
+    <div
+      class="bg-slate-900 border border-sky-500/50 rounded-xl shadow-2xl max-w-4xl w-full h-[85vh] relative flex flex-col overflow-hidden">
+      <div class="bg-slate-800 border-b border-sky-500/30 p-4 flex justify-between items-center">
+        <h2 class="font-serif-header text-xl text-sky-400 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path>
+          </svg>
+          Rules Compendium
+        </h2>
+        <button onclick="closeCompendium()" class="text-slate-400 hover:text-white transition-colors">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="p-4 border-b border-slate-700/50 bg-slate-900/50">
+        <input type="text" id="compendiumSearch" oninput="searchCompendium(this.value)"
+          placeholder="Search conditions, rules, terms..."
+          class="w-full text-sm py-2 px-4 bg-slate-950 border border-slate-700 rounded-lg text-slate-200 focus:border-sky-500 outline-none transition-colors">
+      </div>
+      <div class="flex flex-1 overflow-hidden">
+        <div class="w-1/3 md:w-1/4 border-r border-slate-700/50 overflow-y-auto custom-scrollbar p-2 bg-slate-900"
+          id="compendiumList">
+        </div>
+        <div class="w-2/3 md:w-3/4 overflow-y-auto custom-scrollbar p-6 bg-slate-900/80" id="compendiumDetail">
+          <div class="text-slate-500 italic text-center mt-20">Select an entry to view details.</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="heroicPathsData.js"></script>
+
+  <script>
+    // --- COMPENDIUM FRAMEWORK ---
+    const compendiumData = [
+      // Conditions
+      { id: "cond_afflicted", name: "Afflicted", category: "Conditions", desc: "While Afflicted, you slowly take damage over time. In combat, at the end of each of your turns, you take the amount and type of damage specified by the effect that gave you the condition; this information is typically stated in brackets. For example, if you're Afflicted [1d4 vital], you take 1d4 damage at the end of each of your turns. Out of combat, you instead take that damage every 10 seconds and after each time someone attempts to remove the condition. Unlike most conditions, you can be Afflicted by multiple effects simultaneously. When this happens, resolve each effect separately." },
+      { id: "cond_determined", name: "Determined", category: "Conditions", desc: "While Determined, when you fail a test, you can add an Opportunity to the result. After you choose to do so, remove the Determined condition." },
+      { id: "cond_disoriented", name: "Disoriented", category: "Conditions", desc: "While Disoriented, your senses are disrupted, making most tasks difficult. You can't use reactions, your senses always count as obscured, and Perception tests (and similar tests to use your senses) gain a disadvantage." },
+      { id: "cond_empowered", name: "Empowered", category: "Conditions", desc: "When a Knight Radiant swears an Ideal, they become Empowered, granting a burst of unrestrained power. While Empowered, you gain an advantage on all tests and your Investiture refills to your maximum at the start of each of your turns. Remove this condition at the end of the current scene." },
+      { id: "cond_enhanced", name: "Enhanced", category: "Conditions", desc: "While Enhanced, one of your attributes temporarily increases, as specified in brackets when you gain that condition. The specified attribute gains a bonus equal to the specified number; however, this bonus doesn't change your defenses, maximum health, maximum focus, or maximum Investiture. For example, if you have a Speed of 3 and become Enhanced [+2 Speed], you temporarily gain the following benefits: \n ◆ Gain a +2 bonus to Agility, Light Weaponry, Stealth, and Thievery tests. \n ◆ Gain a +2 bonus to any talents that directly use your Speed. \n ◆ Increase your movement rate from 30 feet to 40 feet.\n Unlike most conditions, Enhanced has a cumulative effect, and more than one of your attributes can be Enhanced at a time." },
+      { id: "cond_exhausted", name: "Exhausted", category: "Conditions", desc: "While Exhausted, you feel fatigued and your skill tests become more difficult. When you gain this condition, it states a negative number in brackets. After you calculate a test result but before you resolve its effects, apply a penalty equal to this number. After each long rest, reduce your Exhausted penalty by 1. The condition is removed when your penalty equals 0. Unlike most conditions, Exhausted has a cumulative effect. When you gain a second instance of this condition, add its listed penalty to your current Exhausted penalty. For example, if an effect makes you Exhausted [-2], you subtract 2 from the result of all tests; if a different effect then makes you Exhausted [-1], that increases your Exhausted penalty, so you now subtract 3 from the result of all tests. As usual, your final test result can't be less than 0, regardless of your penalty." },
+      { id: "cond_focused", name: "Focused", category: "Conditions", desc: "While Focused, you are engaged and intent on your task. When you use an ability that costs focus, its cost is reduced by 1." },
+      { id: "cond_immobilized", name: "Immobilized", category: "Conditions", desc: "While Immobilized, your movement rate becomes 0, and you can't move or be moved by other effects." },
+      { id: "cond_prone", name: "Prone", category: "Conditions", desc: "While Prone, you are lying flat on the ground. While Prone, you are Slowed and melee attacks against you gain an advantage. You can use the Brace action without cover. You can stand up and end this condition as a free action. After you do, your movement rate is reduced by 5 until the start of your next turn. If you become Prone while climbing or flying, you fall and take damage as usual" },
+      { id: "cond_restrained", name: "Restrained", category: "Conditions", desc: "While Restrained, your movement rate becomes 0. You gain a disadvantage on all tests other than those to escape your bonds. If the effect that applies this condition doesn't state an escape DC, it's up to the GM whether and how the condition can be removed early." },
+      { id: "cond_slowed", name: "Slowed", category: "Conditions", desc: "While Slowed, your movement rate is halved. If you become Slowed in the middle of movement, halve your remaining movement (rounded up)." },
+      { id: "cond_stunned", name: "Stunned", category: "Conditions", desc: "While Stunned in combat, you lose any reactions, and on your turn, you gain two fewer actions and don't gain a reaction. While Stunned out of combat, you are overwhelmed, making you move and react slower to your situation at the GM’s discretion." },
+      { id: "cond_surprised", name: "Surprised", category: "Conditions", desc: "While Surprised, you lose any reactions, you don't gain a reaction at the start of combat or on your turn, you can't take a fast turn, and you gain one fewer action. Remove this condition after your next turn." },
+      { id: "cond_unconscious", name: "Unconscious", category: "Conditions", desc: "While Unconscious, your movement rate becomes 0, you can't move or communicate, and you're unaware of your surroundings. When you gain this condition, you fall Prone and drop anything you're carrying. You can't interact with your surroundings or use any actions or reactions other than the Breathe Stormlight action and Regenerate free action (if you're Radiant). In combat, you always go slow, but you can't do anything on your turn (other than the above Radiant actions). Enemies typically ignore Unconscious characters unless they have a strong reason to do otherwise. If you are a PC, you can choose to regain consciousness at the end of any of your turns (no action required) or when an effect heals you to at least 1 health. When you do so, other characters can sense you're conscious, you remove the Unconscious condition, and if you're at 0 health, you recover 1 health. But be careful: with such low health, you could easily suffer another injury, this one potentially more dangerous or deadly. NPCs automatically regain consciousness when they recover 1 health." },
+      { id: "cond_ins_food", name: "Insufficient Food", category: "Conditions", desc: "You can go without food for a number of days up to your Willpower score before you begin to feel ill effects. For each day beyond this that you go without sufficient food, you become Exhausted [-1]. If this reduces you to Exhausted [-10] or lower, you die.Once you consume a day's worth of food, the count of days resets (though you remain Exhausted), and you can go without food for another number of days up to your Willpower score before you suffer more exhaustion." },
+      { id: "cond_ins_water", name: "Insufficient Water", category: "Conditions", desc: "You can't go long without water. For each day you go without sufficient water, you become Exhausted [-1]. If this reduces you to Exhausted [-10] or lower, you die." },
+      // Basic Rules / Actions
+      { id: "rule_advantage", name: "Advantage & Disadvantage", category: "Rules", desc: "[WIP]" },
+      { id: "rule_graze", name: "Graze", category: "Combat", desc: "[WIP]" },
+      { id: "rule_opportunity", name: "Opportunity", category: "Rules", desc: "[WIP]" },
+      { id: "rule_complication", name: "Complication", category: "Rules", desc: "[WIP]" },
+      // The 15 Weapon Properties
+      { id: "wp_cumbersome", name: "Cumbersome [X]", category: "Weapon Properties", desc: "To wield this weapon easily, your Strength score must be equal to or greater than the number indicated in brackets. If your Strength is lower than that number, you gain a disadvantage on all attacks using this weapon and are Slowed while wielding it." },
+      { id: "wp_dangerous", name: "Dangerous", category: "Weapon Properties", desc: "The GM can spend a Complication from an attack with this weapon to cause you to also accidentally graze an ally within the weapon's reach or range. This deals the usual damage for a graze." },
+      { id: "wp_deadly", name: "Deadly", category: "Weapon Properties", desc: "When you hit a target with this weapon, you can spend an opportunity to cause the target to immediately suffer an injury." },
+      { id: "wp_defensive", name: "Defensive", category: "Weapon Properties", desc: "While wielding this weapon, you can use the Brace action without cover nearby." },
+      { id: "wp_discreet", name: "Discreet", category: "Weapon Properties", desc: "This weapon is less obtrusive than others, and thus less likely to be confiscated in secure settings. In non-combat scenes, you gain an advantage on any test you make to disguise this weapon, to hide it on your person, or to convince others not to take it from you." },
+      { id: "wp_fragile", name: "Fragile", category: "Weapon Properties", desc: "When you attack with this weapon, the GM can spend a Complication to cause it to break after the attack is resolved." },
+      { id: "wp_indirect", name: "Indirect", category: "Weapon Properties", desc: "This ranged weapon can arc shots over cover and obscuring terrain. If a target isn't in your line of effect but you can sense them, you can still attack them with this weapon if there's a reasonably open path for your projectile to indirectly arc to them. Your target can't benefit from the Brace action against attacks made with this weapon." },
+      { id: "wp_loaded", name: "Loaded [X]", category: "Weapon Properties", desc: "This weapon stores ammunition equal to the number indicated in brackets. To make a ranged attack with this weapon, you must spend 1 stored ammunition. As an action, you can reload this weapon to full ammunition. The GM can spend a Complication from an attack with this weapon to reduce your stored ammunition; after they do, the weapon only has only one shot remaining." },
+      { id: "wp_momentum", name: "Momentum", category: "Weapon Properties", desc: "When you attack using this weapon, if you already moved at least 10 feet in a straight line toward your target on this turn, you gain an advantage on the attack." },
+      { id: "wp_offhand", name: "Offhand", category: "Weapon Properties", desc: "While wielding this weapon in your offhand, it only costs you 1 focus (instead of 2) to Strike with it." },
+      { id: "wp_pierce", name: "Pierce", category: "Weapon Properties", desc: "This weapon's damage can't be reduced by the target's deflect value." },
+      { id: "wp_quickdraw", name: "Quickdraw", category: "Weapon Properties", desc: "You can use the Interact action as a free action to draw this weapon." },
+      { id: "wp_thrown", name: "Thrown [X/Y]", category: "Weapon Properties", desc: "You can throw this weapon at a target, making a ranged attack when you do. The two numbers in brackets express the weapon's short and long range; as with ranged weapons, you gain a disadvantage when attacking a target outside short range. Once the weapon is thrown, it is lost until you recover it from your target." },
+      { id: "wp_twohanded", name: "Two-Handed", category: "Weapon Properties", desc: "You must wield this weapon in two hands, not just one. When you attack with it, it uses both hands." },
+      { id: "wp_unique", name: "Unique", category: "Weapon Properties", desc: "This weapon has unique rules. These are detailed either in the weapon description or immediately following the word “Unique” in the Weapons table (for example, “Unique: loses Two-Handed trait”)." }
+    ];
+
+    function openCompendium() {
+      document.getElementById('compendiumModal').classList.remove('hidden');
+      document.getElementById('compendiumSearch').value = '';
+      searchCompendium('');
+      document.getElementById('compendiumDetail').innerHTML = '<div class="text-slate-500 italic text-center mt-20">Select an entry to view details.</div>';
+    }
+
+    function closeCompendium() {
+      document.getElementById('compendiumModal').classList.add('hidden');
+    }
+
+    function searchCompendium(query) {
+      const listEl = document.getElementById('compendiumList');
+      listEl.innerHTML = '';
+
+      const lowerQuery = query.toLowerCase();
+      const results = compendiumData.filter(item =>
+        item.name.toLowerCase().includes(lowerQuery) ||
+        item.category.toLowerCase().includes(lowerQuery)
+      );
+
+      if (results.length === 0) {
+        listEl.innerHTML = '<div class="text-xs text-slate-500 p-3 text-center italic">No results found.</div>';
+        return;
+      }
+
+      // Group by category
+      const grouped = {};
+      results.forEach(item => {
+        if (!grouped[item.category]) grouped[item.category] = [];
+        grouped[item.category].push(item);
+      });
+
+      // Render list
+      for (const cat in grouped) {
+        const catHeader = document.createElement('div');
+        catHeader.className = 'text-[9px] font-bold text-sky-500 uppercase tracking-widest mt-3 mb-1 px-2 border-b border-sky-500/20 pb-1';
+        catHeader.innerText = cat;
+        listEl.appendChild(catHeader);
+
+        grouped[cat].forEach(item => {
+          const btn = document.createElement('button');
+          btn.className = 'w-full text-left px-2 py-1.5 text-xs text-slate-300 hover:bg-sky-900/40 hover:text-sky-300 rounded transition-colors';
+          btn.innerText = item.name;
+          btn.onclick = () => showCompendiumDetail(item);
+          listEl.appendChild(btn);
+        });
+      }
+    }
+
+    function showCompendiumDetail(item) {
+      const detailEl = document.getElementById('compendiumDetail');
+      detailEl.innerHTML = `
+        <div class="mb-4">
+          <span class="text-[10px] font-bold uppercase tracking-widest text-sky-400 border border-sky-500/30 px-2 py-0.5 rounded bg-sky-500/10">${item.category}</span>
+        </div>
+        <h3 class="font-serif-header text-3xl text-white mb-6 border-b border-slate-700 pb-3">${item.name}</h3>
+        <div class="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">${item.desc}</div>
+      `;
+    }
+  </script>
+
   <script>
     const radiantPathsData = {
       dustbringer: {
@@ -2044,6 +2192,7 @@
         if (i.id === 'radiantOrder') updateRadiantTrees();
       }));
       document.getElementById('talentModal').addEventListener('click', function (e) { if (e.target === this) closeTalentModal(); });
+      document.getElementById('compendiumModal').addEventListener('click', function (e) { if (e.target === this) closeCompendium(); });
       updateUI();
       autoSaveCharacter();
     };
