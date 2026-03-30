@@ -1144,6 +1144,33 @@
       updateUI();
     }
 
+    function deleteExtraTalentSlot(key) {
+      if (!key.startsWith('extra-')) return;
+      const indexToDelete = parseInt(key.split('-')[1]);
+
+      // 1. Clear the talent being deleted from the unlocked set
+      const oldId = chosenTalents[key]?.id;
+      if (oldId) removeUnlockedTalent(oldId);
+
+      // 2. Shift data from higher-numbered extra slots down to fill the gap
+      // This prevents "ghost" data if you delete a middle slot
+      for (let i = indexToDelete; i < extraTalentSlots; i++) {
+        const currentKey = `extra-${i}`;
+        const nextKey = `extra-${i + 1}`;
+        chosenTalents[currentKey] = { ...chosenTalents[nextKey] };
+      }
+
+      // 3. Remove the entry for the final slot (which was moved or is now the one being removed)
+      delete chosenTalents[`extra-${extraTalentSlots}`];
+
+      // 4. Update the counter and refresh the entire UI
+      extraTalentSlots--;
+      updateTalentSlots();
+      updateUI();
+      updateSpecialtyTree();
+      updateRadiantTrees();
+    }
+
     function addUnlockedTalent(id) {
       if (!unlockedTalentIds.has(id)) {
         unlockedTalentIds.add(id);
@@ -1767,10 +1794,14 @@
           Object.values(radiantPathsData).some(r => r.tree.some(t => t.id === dataStore[key].id) || dataStore[key].id.startsWith('first_ideal'));
         dataStore[key].isRadiant = isRadiant;
       }
+
       // Check if the key starts with 'extra' to identify custom slots
       const isExtra = key.startsWith('extra');
       div.className = `talent-slot ${isBonus && !isExtra ? 'bonus-talent' : ''} ${isRadiant ? 'radiant-talent' : ''} ${isExtra ? 'extra-talent' : ''}`;
 
+      // Set up the delete/clear tooltips and events
+      const dblClickAttr = isExtra ? `ondblclick="deleteExtraTalentSlot('${key}')"` : '';
+      const btnTitle = isExtra ? "Click to clear, Double-click to delete slot" : "Clear Slot";
 
       div.innerHTML = `
                 <div class="flex justify-between items-center mb-1">
@@ -1785,7 +1816,7 @@
                                ${dataStore[key].id ? `readonly onclick="openTalentModal('${dataStore[key].id}')"` : `onfocus="openTalentSearch('${key}')" oninput="handleManualTalentChange('${key}', this.value)" onblur="setTimeout(() => closeTalentSearch('${key}'), 200)"`}>
                         <div id="dropdown-${key}" class="absolute top-full z-50 w-full bg-slate-800 border ${isRadiant ? 'border-sky-500' : 'border-purple-500'} hidden max-h-60 overflow-y-auto custom-scrollbar rounded-lg shadow-[0_0_15px_rgba(0,0,0,0.7)] mt-1"></div>
                     </div>
-                    <button onclick="clearTalentSlot('${key}')" class="p-1 text-slate-500 hover:text-red-400 bg-slate-800/80 rounded transition-colors" title="Clear Slot">
+                    <button onclick="clearTalentSlot('${key}')" ${dblClickAttr} class="p-1 text-slate-500 hover:text-red-400 bg-slate-800/80 rounded transition-colors" title="${btnTitle}">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
                 </div>
