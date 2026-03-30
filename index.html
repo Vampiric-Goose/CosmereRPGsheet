@@ -20,6 +20,10 @@
       font-family: 'Cinzel', serif;
     }
 
+    .extra-talent {
+      border-left-color: #ffffff;
+    }
+
     .stat-card {
       background: rgba(30, 41, 59, 0.7);
       border: 1px solid rgba(71, 85, 105, 0.5);
@@ -441,10 +445,20 @@
 
         <!-- TALENT SLOTS -->
         <div class="stat-card p-6">
-          <h3
-            class="font-serif-header text-slate-300 text-sm uppercase tracking-widest border-b border-slate-800 pb-2 mb-6">
-            Active Talents
-          </h3>
+          <div class="flex justify-between items-center border-b border-slate-800 pb-2 mb-6">
+            <h3 class="font-serif-header text-slate-300 text-sm uppercase tracking-widest">
+              Active Talents
+            </h3>
+            <button onclick="addExtraTalentSlot()"
+              class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-1 rounded border border-slate-700 transition-colors flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Add Extra Slot
+            </button>
+          </div>
           <div id="talentContainer" class="space-y-4">
             <!-- Level 1 Slot -->
             <div class="talent-slot">
@@ -1122,6 +1136,14 @@
     const chosenTalents = {};
     const unlockedTalentIds = new Set();
 
+    let extraTalentSlots = 0;
+
+    function addExtraTalentSlot() {
+      extraTalentSlots++;
+      updateTalentSlots();
+      updateUI();
+    }
+
     function addUnlockedTalent(id) {
       if (!unlockedTalentIds.has(id)) {
         unlockedTalentIds.add(id);
@@ -1722,6 +1744,14 @@
         });
       }
 
+      // Extra talent slots for debug/homebrew 
+      for (let i = 1; i <= extraTalentSlots; i++) {
+        const key = `extra-${i}`;
+        // The 'true' at the end highlights them in green like human bonus talents
+        renderTalentSlot(container, key, `Extra Talent Slot ${i}`, "Custom Addition", chosenTalents, true);
+        if (chosenTalents[key] && chosenTalents[key].id) currentIdsInSlots.add(chosenTalents[key].id);
+      }
+
       const idsToDelete = [];
       unlockedTalentIds.forEach(id => { if (!currentIdsInSlots.has(id)) idsToDelete.push(id); });
       idsToDelete.forEach(id => removeUnlockedTalent(id));
@@ -1737,13 +1767,15 @@
           Object.values(radiantPathsData).some(r => r.tree.some(t => t.id === dataStore[key].id) || dataStore[key].id.startsWith('first_ideal'));
         dataStore[key].isRadiant = isRadiant;
       }
+      // Check if the key starts with 'extra' to identify custom slots
+      const isExtra = key.startsWith('extra');
+      div.className = `talent-slot ${isBonus && !isExtra ? 'bonus-talent' : ''} ${isRadiant ? 'radiant-talent' : ''} ${isExtra ? 'extra-talent' : ''}`;
 
-      div.className = `talent-slot ${isBonus ? 'bonus-talent' : ''} ${isRadiant ? 'radiant-talent' : ''}`;
 
       div.innerHTML = `
                 <div class="flex justify-between items-center mb-1">
-                    <span class="text-xs font-bold ${isBonus ? 'text-emerald-400' : 'text-slate-400'} uppercase">${title}</span>
-                    <span class="text-[10px] ${isBonus ? 'text-emerald-600' : (isRadiant ? 'text-sky-500' : 'text-purple-500')} italic">${subtitle}</span>
+                    <span class="text-xs font-bold ${isExtra ? 'text-white' : (isBonus ? 'text-emerald-400' : 'text-slate-400')} uppercase">${title}</span>
+                    <span class="text-[10px] ${isExtra ? 'text-slate-400' : (isBonus ? 'text-emerald-600' : (isRadiant ? 'text-sky-500' : 'text-purple-500'))} italic">${subtitle}</span>
                 </div>
                 <div class="relative flex items-center gap-1">
                     <div class="relative flex-grow">
@@ -2032,6 +2064,7 @@
         expertises: document.getElementById('expertises').value,
         inventory: document.getElementById('inventory').value,
         equipment: document.getElementById('equipment').value,
+        extraTalentSlots: extraTalentSlots,
         connections_notes: document.getElementById('connections_notes').value,
         goals: document.getElementById('goals').value,
         notes: document.getElementById('notes').value,
@@ -2064,6 +2097,7 @@
         spd: document.getElementById('spd').value,
         int: document.getElementById('int').value,
         wil: document.getElementById('wil').value,
+        extraTalentSlots: extraTalentSlots,
         awa: document.getElementById('awa').value,
         pre: document.getElementById('pre').value,
         deflect: document.getElementById('deflect').value,
@@ -2100,6 +2134,13 @@
           document.getElementById('radiantOrder').value = data.radiantOrder;
           updateRadiantTrees();
         }
+
+        if (data.extraTalentSlots !== undefined) {
+          extraTalentSlots = data.extraTalentSlots;
+        } else {
+          extraTalentSlots = 0;
+        }
+
         if (data.specialty) document.getElementById('specialty').value = data.specialty;
 
         // Restore state objects
@@ -2145,6 +2186,12 @@
             document.getElementById('radiantOrder').value = data.radiantOrder;
             updateRadiantTrees();
           }
+          if (data.extraTalentSlots !== undefined) {
+            extraTalentSlots = data.extraTalentSlots;
+          } else {
+            extraTalentSlots = 0;
+          }
+
           if (data.specialty !== undefined) document.getElementById('specialty').value = data.specialty;
           if (data.level !== undefined) document.getElementById('level').value = data.level;
           if (data.curH !== undefined) document.getElementById('curH').value = data.curH;
